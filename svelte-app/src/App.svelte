@@ -21,10 +21,10 @@
   const affiliations = data.affiliations;
 
   const photos = [
-    { src: './images/photo-1.jpg', alt: 'Tommy Adams — field work', caption: '' },
-    { src: './images/photo-2.jpg', alt: 'Tommy Adams — international', caption: '' },
-    { src: './images/photo-3.jpg', alt: 'Tommy Adams — community', caption: '' },
-    { src: './images/photo-4.jpg', alt: 'Tommy Adams — leadership', caption: '' }
+    { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood rescue team — Floyd County Emergency & Rescue' },
+    { src: './images/02-search-rescue-field.jpg', alt: 'Search and rescue field operation', caption: 'In the field with SAR team' },
+    { src: '', alt: '', caption: '' },
+    { src: '', alt: '', caption: '' }
   ];
 
   function paragraphs(text) {
@@ -50,7 +50,7 @@
   <Stats {stats} />
 
   <div class="photo-strip">
-    {#each photos as photo}
+    {#each photos.filter(p => p.src) as photo}
       <div class="photo-cell">
         <img src={photo.src} alt={photo.alt} />
       </div>
