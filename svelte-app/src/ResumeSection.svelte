@@ -45,7 +45,7 @@
 
 <style>
   .section {
-    margin-bottom: 45px;
+    margin-bottom: 40px;
   }
 
   .section:last-child {
@@ -55,108 +55,100 @@
   .section-header {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 3px solid #3498db;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #4a7c6b;
   }
 
   .section-icon {
-    font-size: 2em;
-    margin-right: 15px;
-    color: #3498db;
+    font-size: 1.8em;
+    margin-right: 12px;
   }
 
   .section-title {
-    font-size: 1.6em;
+    font-size: 1.4em;
     font-weight: 700;
-    color: #2c3e50;
+    color: #1e3a2f;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin: 0;
   }
 
   .section-content {
-    color: #34495e;
-    font-size: 1.05em;
-    line-height: 1.8;
+    color: #34403b;
+    font-size: 1em;
+    line-height: 1.7;
   }
 
   /* Highlights */
   .highlights {
     list-style: none;
-    margin-top: 15px;
+    margin-top: 12px;
     padding: 0;
   }
 
   .highlights li {
-    padding: 12px 0 12px 35px;
+    padding: 10px 0 10px 30px;
     position: relative;
-    color: #2c3e50;
-    font-size: 1.05em;
+    color: #2d3a35;
+    font-size: 1em;
   }
 
   .highlights li::before {
-    content: "✓";
+    content: "—";
     position: absolute;
     left: 0;
-    color: #27ae60;
+    color: #4a7c6b;
     font-weight: 700;
-    font-size: 1.3em;
   }
 
   /* Skills */
   .skills-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-    margin-top: 20px;
+    gap: 12px;
+    margin-top: 18px;
   }
 
   .skill-badge {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2d5a47;
     color: white;
-    padding: 12px 20px;
-    border-radius: 25px;
+    padding: 10px 18px;
+    border-radius: 4px;
     text-align: center;
     font-weight: 600;
-    font-size: 0.95em;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-    transition: all 0.3s ease;
-  }
-
-  .skill-badge:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+    font-size: 0.9em;
+    letter-spacing: 0.3px;
   }
 
   /* Orgs */
   .org-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 10px;
     margin-top: 15px;
   }
 
   .org-badge {
-    background: #ecf0f1;
-    padding: 10px 20px;
-    border-radius: 20px;
-    color: #2c3e50;
+    background: #f5f2ec;
+    padding: 8px 16px;
+    border-radius: 4px;
+    color: #2d3a35;
     font-weight: 600;
-    font-size: 0.95em;
-    border: 2px solid #bdc3c7;
+    font-size: 0.9em;
+    border: 1px solid #d4cdc2;
   }
 
   @media (max-width: 768px) {
-    .section-title { font-size: 1.2em; letter-spacing: 0.5px; }
+    .section-title { font-size: 1.15em; letter-spacing: 0.5px; }
     .skills-grid { grid-template-columns: repeat(2, 1fr); }
-    .highlights li { padding-left: 28px; font-size: 0.98em; }
-    .section-icon { font-size: 1.6em; margin-right: 10px; }
+    .highlights li { padding-left: 24px; font-size: 0.95em; }
+    .section-icon { font-size: 1.5em; margin-right: 10px; }
   }
 
   @media (max-width: 400px) {
     .skills-grid { grid-template-columns: 1fr; }
-    .section-title { font-size: 1.1em; }
+    .section-title { font-size: 1.05em; }
   }
 
   @media print {

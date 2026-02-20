@@ -20,6 +20,13 @@
   const coreSkills = data.coreSkills;
   const affiliations = data.affiliations;
 
+  const photos = [
+    { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood rescue — Floyd County' },
+    { src: './images/09-cliffs-of-moher-ireland.jpg', alt: 'Cliffs of Moher, Ireland', caption: 'Cliffs of Moher, Ireland' },
+    { src: './images/08-ridge-run-sunset.jpg', alt: 'Sunset ridge run overlooking Kentucky', caption: 'Daily run — 2,500+ consecutive days' },
+    { src: './images/03-las-vegas-marathon-finish.jpg', alt: 'Las Vegas Marathon finish line', caption: 'Las Vegas Marathon' }
+  ];
+
   function paragraphs(text) {
     return text.split('\n\n');
   }
@@ -35,10 +42,20 @@
   />
 
   <div class="profile">
-    <p>{profile.statement}</p>
+    {#each paragraphs(profile.statement) as para}
+      <p>{para}</p>
+    {/each}
   </div>
 
   <Stats {stats} />
+
+  <div class="photo-strip">
+    {#each photos.filter(p => p.src) as photo}
+      <div class="photo-cell">
+        <img src={photo.src} alt={photo.alt} />
+      </div>
+    {/each}
+  </div>
 
   <div class="content">
 
@@ -89,23 +106,47 @@
     max-width: 850px;
     margin: 0 auto;
     background: white;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    border-radius: 6px;
     overflow: hidden;
   }
 
   .profile {
-    padding: 40px;
-    background: #f8f9fa;
-    border-bottom: 4px solid #3498db;
+    padding: 35px 40px;
+    background: #faf8f5;
+    border-bottom: 2px solid #4a7c6b;
   }
 
   .profile p {
-    font-size: 1.05em;
-    color: #2c3e50;
-    text-align: justify;
-    line-height: 1.8;
-    margin: 0;
+    font-size: 1em;
+    color: #2d3a35;
+    text-align: left;
+    line-height: 1.75;
+    margin: 0 0 12px;
+  }
+
+  .profile p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Photo strip */
+  .photo-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+
+  .photo-cell {
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: #e8e2d8;
+  }
+
+  .photo-cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
   .content {
@@ -114,7 +155,7 @@
 
   /* Pass paragraph spacing into section slots */
   .content :global(p) {
-    margin-bottom: 15px;
+    margin-bottom: 12px;
   }
 
   .content :global(p:last-child) {
@@ -123,16 +164,15 @@
 
   /* Trail running banner */
   .trail-photo-banner {
-    margin-bottom: 25px;
-    border-radius: 6px;
+    margin-bottom: 20px;
+    border-radius: 4px;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
   }
 
   .trail-photo-banner img {
     width: 100%;
-    height: 260px;
+    height: 240px;
     object-fit: cover;
     object-position: center 40%;
     display: block;
@@ -143,10 +183,10 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.65));
+    background: linear-gradient(transparent, rgba(0,0,0,0.6));
     color: white;
-    padding: 30px 20px 14px;
-    font-size: 0.9em;
+    padding: 28px 18px 12px;
+    font-size: 0.85em;
     font-style: italic;
     letter-spacing: 0.3px;
   }
@@ -154,13 +194,14 @@
   @media (max-width: 768px) {
     .content { padding: 25px 18px; }
     .profile { padding: 25px 18px; }
-    .profile p { text-align: left; font-size: 0.98em; }
     .trail-photo-banner img { height: 180px; }
+    .photo-strip { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (max-width: 400px) {
     .content { padding: 20px 15px; }
     .profile { padding: 20px 15px; }
+    .photo-strip { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media print {
