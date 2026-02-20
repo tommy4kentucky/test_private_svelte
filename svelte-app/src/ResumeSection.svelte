@@ -148,8 +148,15 @@
   }
 
   @media (max-width: 768px) {
-    .section-title { font-size: 1.3em; }
+    .section-title { font-size: 1.2em; letter-spacing: 0.5px; }
+    .skills-grid { grid-template-columns: repeat(2, 1fr); }
+    .highlights li { padding-left: 28px; font-size: 0.98em; }
+    .section-icon { font-size: 1.6em; margin-right: 10px; }
+  }
+
+  @media (max-width: 400px) {
     .skills-grid { grid-template-columns: 1fr; }
+    .section-title { font-size: 1.1em; }
   }
 
   @media print {

@@ -197,8 +197,15 @@
   }
 
   @media (max-width: 768px) {
-    .content { padding: 30px 25px; }
+    .content { padding: 25px 18px; }
+    .profile { padding: 25px 18px; }
+    .profile p { text-align: left; font-size: 0.98em; }
     .trail-photo-banner img { height: 180px; }
+  }
+
+  @media (max-width: 400px) {
+    .content { padding: 20px 15px; }
+    .profile { padding: 20px 15px; }
   }
 
   @media print {
