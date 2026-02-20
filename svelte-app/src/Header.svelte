@@ -67,7 +67,14 @@
 
   @media (max-width: 768px) {
     h1 { font-size: 2em; }
-    h2 { font-size: 1.2em; }
-    .header { padding: 40px 25px; }
+    h2 { font-size: 1.1em; letter-spacing: 1.5px; }
+    .header { padding: 35px 20px; }
+    .profile-photo { width: 130px; height: 130px; }
+  }
+
+  @media (max-width: 400px) {
+    h1 { font-size: 1.6em; }
+    h2 { font-size: 0.95em; }
+    .profile-photo { width: 110px; height: 110px; }
   }
 </style>

@@ -49,8 +49,13 @@
   }
 
   @media (max-width: 768px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 400px) {
     .stats { grid-template-columns: 1fr; }
     .stat-box { border-right: none; }
+    .stat-number { font-size: 2.2em; }
   }
 
   @media print {
