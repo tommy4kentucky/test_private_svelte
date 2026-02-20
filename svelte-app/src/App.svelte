@@ -21,10 +21,10 @@
   const affiliations = data.affiliations;
 
   const photos = [
-    { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood rescue team — Floyd County Emergency & Rescue' },
-    { src: './images/02-search-rescue-field.jpg', alt: 'Search and rescue field operation', caption: 'In the field with SAR team' },
-    { src: '', alt: '', caption: '' },
-    { src: '', alt: '', caption: '' }
+    { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood rescue — Floyd County' },
+    { src: './images/09-cliffs-of-moher-ireland.jpg', alt: 'Cliffs of Moher, Ireland', caption: 'Cliffs of Moher, Ireland' },
+    { src: './images/08-ridge-run-sunset.jpg', alt: 'Sunset ridge run overlooking Kentucky', caption: 'Daily run — 2,500+ consecutive days' },
+    { src: './images/03-las-vegas-marathon-finish.jpg', alt: 'Las Vegas Marathon finish line', caption: 'Las Vegas Marathon' }
   ];
 
   function paragraphs(text) {
