@@ -1,13 +1,25 @@
 {
-  "name": "Tommy Adams",
+  "name": "THOMAS WESTON ADAMS III",
   "title": "Emergency Management Professional | Educator | Public Servant-Leader",
   "location": "Kentucky, USA | Honorable Kentucky Colonel",
   "statement": "A Pepperdine University-educated communicator and public servant, I bring over 17 years of university-level teaching experience alongside 5+ years of hands-on service in emergency management and search & rescue — responding on both blue sky days and during federally declared disasters. As Section Supervisor at Kentucky Emergency Management, I lead the Chemical Stockpile Emergency Preparedness Program (CSEPP) and serve on the State EOC team as Planning Section Chief. As an active officer with Wolfe County Search & Rescue, I have deployed as Wilderness First Responder, Rope Rescue Technician, and Swift Water Rescue Technician, including during the Eastern Kentucky floods of 2022. I hold a Master's degree in Political Communication from San Diego State University, reached Ph.D. candidacy at Penn State, and completed executive education at the Naval Postgraduate School's Center for Homeland Defense and Security. My work bridges strategic program management with direct emergency response, always grounded in community service, equity, and whole-community preparedness.",
   "stats": [
-    { "number": "17+", "label": "Years Teaching Experience" },
-    { "number": "5+",  "label": "Years Emergency Management" },
-    { "number": "7+",  "label": "Years Daily Running Streak" },
-    { "number": "30+", "label": "Countries Visited" }
+    {
+      "number": "17+",
+      "label": "Years Teaching Experience"
+    },
+    {
+      "number": "5+",
+      "label": "Years Emergency Management"
+    },
+    {
+      "number": "7+",
+      "label": "Years Daily Running Streak"
+    },
+    {
+      "number": "30+",
+      "label": "Countries Visited"
+    }
   ],
   "emergencyHighlights": [
     "Supervise staff and volunteers in high-risk emergency preparedness environment",
