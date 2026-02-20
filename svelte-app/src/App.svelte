@@ -7,7 +7,7 @@
     name: 'Tommy Adams',
     title: 'Emergency Management Professional | Educator | Public Servant-Leader',
     location: 'Kentucky, USA | Honorable Kentucky Colonel',
-    photoSrc: '/images/tommy-portrait.jpg',
+    photoSrc: './images/tommy-portrait.jpg',
     photoAlt: 'Tommy Adams',
     statement: `I am a Section Supervisor with Kentucky Emergency Management (KYEM), leading the Chemical Stockpile Emergency Preparedness Program (CSEPP) and serving on the State EOC team during activations as Planning Section Chief. With over 17 years of higher education teaching experience and 5+ years in emergency management and search & rescue, I bring operational leadership, policy development, and trauma-informed communication skills to high-consequence environments. As a Wilderness First Responder, Rope Rescue Technician, and Swift Water Rescue Technician with Wolfe County Search & Rescue, I have responded to time-sensitive incidents including the Eastern Kentucky floods of 2022. I hold a Master's degree in Political Communication from San Diego State University, reached Ph.D. candidacy at Penn State, and completed executive education at the Naval Postgraduate School's Center for Homeland Defense and Security. My work bridges strategic program management with hands-on emergency response, always grounded in community service, equity, and whole-community preparedness.`
   };
@@ -113,7 +113,7 @@
 
     <ResumeSection icon="🏃" title="Personal Excellence & Global Experience">
       <div class="trail-photo-banner">
-        <img src="/images/tommy-trail-running.jpg" alt="Tommy Adams trail running on a mountain ridge" />
+        <img src="./images/tommy-trail-running.jpg" alt="Tommy Adams trail running on a mountain ridge" />
         <div class="trail-photo-caption">Running the ridgeline — one of 2,500+ consecutive days and counting</div>
       </div>
       <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.</p>
