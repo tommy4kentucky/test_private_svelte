@@ -35,7 +35,9 @@
   />
 
   <div class="profile">
-    <p>{profile.statement}</p>
+    {#each paragraphs(profile.statement) as para}
+      <p>{para}</p>
+    {/each}
   </div>
 
   <Stats {stats} />
