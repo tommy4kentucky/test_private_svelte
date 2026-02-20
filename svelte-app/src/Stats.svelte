@@ -16,35 +16,29 @@
   .stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    background: white;
+    background: #faf8f5;
   }
 
   .stat-box {
-    padding: 35px 20px;
+    padding: 30px 20px;
     text-align: center;
-    border-right: 1px solid #ecf0f1;
-    border-bottom: 1px solid #ecf0f1;
-    transition: all 0.3s ease;
-  }
-
-  .stat-box:hover {
-    background: #f8f9fa;
-    transform: translateY(-3px);
+    border-right: 1px solid #e8e2d8;
+    border-bottom: 1px solid #e8e2d8;
   }
 
   .stat-number {
-    font-size: 3em;
+    font-size: 2.8em;
     font-weight: 700;
-    color: #3498db;
+    color: #2d5a47;
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   .stat-label {
-    font-size: 0.95em;
-    color: #7f8c8d;
+    font-size: 0.85em;
+    color: #6b7c75;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     font-weight: 600;
   }
 
