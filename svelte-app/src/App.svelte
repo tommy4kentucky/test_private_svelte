@@ -29,6 +29,7 @@
   const executiveEducation = data.executiveEducation || [];
   const teachingInstitutions = data.teachingInstitutions || [];
   const runningStartPhotos = data.runningStartPhotos || [];
+  const runningPhotos = data.runningPhotos || [];
 
   const photos = [
     { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'SAR Operations — Floyd County' },
@@ -196,6 +197,18 @@
     <ResumeSection icon="🏃" title="Personal Excellence & Global Perspective">
       <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.{#if strava} <a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
       <p><strong>Globally-Minded Traveler:</strong> Visited 30+ countries across six continents including Italy, UK, Germany, France, China, Japan, Thailand, Australia, Brazil, New Zealand, and many others. Studied abroad in Florence, Italy (Pepperdine University International Programs) and taught in Shanghai, China as Visiting Professor.</p>
+      {#if runningPhotos.length > 0}
+        <div class="running-photo-grid">
+          {#each runningPhotos as photo}
+            <div class="running-photo-item">
+              <img src="./images/{photo.file}" alt={photo.alt} />
+              {#if photo.caption}
+                <div class="running-photo-caption">{photo.caption}</div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      {/if}
     </ResumeSection>
 
     <ResumeSection icon="🌱" title="Community Service & Volunteer Work">

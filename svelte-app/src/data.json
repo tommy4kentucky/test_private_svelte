@@ -80,9 +80,21 @@
     "National Communication Association",
     "FEMA"
   ],
-  "sarTeamPhoto": "",
-  "sarTeamPhotoAlt": "Wolfe County Search & Rescue team",
+  "sarTeamPhoto": "PXL_20230521_171346514.MP.jpg",
+  "sarTeamPhotoAlt": "Floyd County Flood Rescue Training — multi-agency team",
   "runningStartPhotos": [],
+  "runningPhotos": [
+    {
+      "file": "PXL_20230115_222355929.PORTRAIT~2.jpg",
+      "alt": "Tommy Adams watching the sunset from a Kentucky ridge",
+      "caption": "Sunset ridge run — Red River Gorge area"
+    },
+    {
+      "file": "tommy-trail-running.jpg",
+      "alt": "Tommy Adams trail running on a misty alpine ridge",
+      "caption": "Trail running — New Zealand"
+    }
+  ],
   "educationDegrees": "Ph.D. Candidacy – Communication Arts & Sciences (Rhetoric, Politics, & Democratic Deliberation), Penn State University; M.A. Communication Studies (Political Communication), San Diego State University; B.A. Speech Communication & Philosophy (Double Major), Pepperdine University",
   "executiveEducation": [
     {
