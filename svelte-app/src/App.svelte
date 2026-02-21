@@ -166,6 +166,10 @@
         <div class="trail-photo-caption">Running the ridgeline — one of 2,500+ consecutive days and counting</div>
       </div>
       <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.{#if strava} <a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
+      <div class="sunset-photo">
+        <img src="./images/08-ridge-run-sunset.jpg" alt="Tommy Adams looking off into the distance at sunset on a Kentucky ridge" />
+        <div class="sunset-caption">One of 2,500+ consecutive days — looking out over Kentucky</div>
+      </div>
       <p><strong>Globally-Minded Traveler:</strong> Visited 30+ countries across six continents including Italy, UK, Germany, France, China, Japan, Thailand, Australia, Brazil, New Zealand, and many others. Studied abroad in Florence, Italy (Pepperdine University International Programs) and taught in Shanghai, China as Visiting Professor.</p>
     </ResumeSection>
 
@@ -338,16 +342,46 @@
     letter-spacing: 0.3px;
   }
 
+  /* Sunset photo after Strava link */
+  .sunset-photo {
+    margin: 16px 0 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .sunset-photo img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    object-position: center 50%;
+    display: block;
+  }
+
+  .sunset-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.6));
+    color: white;
+    padding: 28px 18px 12px;
+    font-size: 0.85em;
+    font-style: italic;
+    letter-spacing: 0.3px;
+  }
+
   @media (max-width: 768px) {
     .content { padding: 25px 18px; }
     .profile { padding: 25px 18px; }
-    .trail-photo-banner img { height: 180px; }
-    .sar-banner img { height: 200px; }
-    .classroom-banner img { height: 200px; }
+    .trail-photo-banner img { height: 150px; }
+    .sar-banner img { height: 160px; }
+    .classroom-banner img { height: 160px; }
+    .sunset-photo img { height: 180px; }
     .teaching-grid { grid-template-columns: repeat(2, 1fr); }
     .photo-mosaic {
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: 180px 180px 180px;
+      grid-template-rows: 155px 155px 155px;
     }
     .photo-cell-featured { grid-row: span 1; }
     .photo-caption { opacity: 1; transform: none; }
@@ -358,9 +392,12 @@
     .profile { padding: 20px 15px; }
     .photo-mosaic {
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: repeat(3, 150px);
+      grid-template-rows: repeat(3, 130px);
     }
-    .sar-banner img { height: 160px; }
+    .trail-photo-banner img { height: 130px; }
+    .sar-banner img { height: 140px; }
+    .classroom-banner img { height: 140px; }
+    .sunset-photo img { height: 160px; }
   }
 
   /* Work experience */
