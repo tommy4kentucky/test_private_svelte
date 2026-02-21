@@ -26,10 +26,11 @@
   const teachingInstitutions = data.teachingInstitutions || [];
 
   const photos = [
-    { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood rescue — Floyd County' },
-    { src: './images/09-cliffs-of-moher-ireland.jpg', alt: 'Cliffs of Moher, Ireland', caption: 'Cliffs of Moher, Ireland' },
-    { src: './images/08-ridge-run-sunset.jpg', alt: 'Sunset ridge run overlooking Kentucky', caption: 'Daily run — 2,500+ consecutive days' },
-    { src: './images/03-las-vegas-marathon-finish.jpg', alt: 'Las Vegas Marathon finish line', caption: 'Las Vegas Marathon' }
+    { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'SAR Operations — Floyd County', featured: true },
+    { src: './images/13-sar-highline-valley.jpg', alt: 'Tommy Adams smiling in helmet at highline over valley', caption: 'Highline Rigging — Red River Gorge' },
+    { src: './images/12-sar-rappel-sandstone.jpg', alt: 'Tommy Adams rappelling sandstone cliff with helmet', caption: 'Technical Rope Rescue' },
+    { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood Rescue — Floyd County' },
+    { src: './images/08-ridge-run-sunset.jpg', alt: 'Sunset ridge run overlooking Kentucky', caption: '2,500+ Consecutive Days Running' },
   ];
 
   function paragraphs(text) {
@@ -54,10 +55,11 @@
 
   <Stats {stats} />
 
-  <div class="photo-strip">
-    {#each photos.filter(p => p.src) as photo}
-      <div class="photo-cell">
+  <div class="photo-mosaic">
+    {#each photos as photo}
+      <div class="photo-cell {photo.featured ? 'photo-cell-featured' : ''}">
         <img src={photo.src} alt={photo.alt} />
+        <div class="photo-caption">{photo.caption}</div>
       </div>
     {/each}
   </div>
@@ -84,6 +86,10 @@
     </ResumeSection>
 
     <ResumeSection icon="🚨" title="Emergency Management Leadership" highlights={emergencyHighlights}>
+      <div class="sar-banner">
+        <img src="./images/07-sar-cliff-edge-fog.jpg" alt="Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation" />
+        <div class="sar-banner-caption">Cliff rescue operations — Red River Gorge area</div>
+      </div>
       {#each paragraphs(data.emergencyContent) as para}
         <p>{para}</p>
       {/each}
@@ -196,17 +202,24 @@
     margin-bottom: 0;
   }
 
-  /* Photo strip */
-  .photo-strip {
+  /* Photo mosaic */
+  .photo-mosaic {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: 200px 200px;
+    gap: 3px;
+    background: #1e3a2f;
   }
 
   .photo-cell {
-    aspect-ratio: 1;
     overflow: hidden;
     background: #e8e2d8;
+    position: relative;
+    cursor: default;
+  }
+
+  .photo-cell-featured {
+    grid-row: span 2;
   }
 
   .photo-cell img {
@@ -214,6 +227,32 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .photo-cell:hover img {
+    transform: scale(1.04);
+  }
+
+  .photo-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.72));
+    color: white;
+    padding: 24px 12px 10px;
+    font-size: 0.78em;
+    font-style: italic;
+    letter-spacing: 0.3px;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .photo-cell:hover .photo-caption {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .content {
@@ -227,6 +266,35 @@
 
   .content :global(p:last-child) {
     margin-bottom: 0;
+  }
+
+  /* SAR action banner */
+  .sar-banner {
+    margin-bottom: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .sar-banner img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    object-position: center 30%;
+    display: block;
+  }
+
+  .sar-banner-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.6));
+    color: white;
+    padding: 28px 18px 12px;
+    font-size: 0.85em;
+    font-style: italic;
+    letter-spacing: 0.3px;
   }
 
   /* Trail running banner */
@@ -262,13 +330,23 @@
     .content { padding: 25px 18px; }
     .profile { padding: 25px 18px; }
     .trail-photo-banner img { height: 180px; }
-    .photo-strip { grid-template-columns: repeat(2, 1fr); }
+    .sar-banner img { height: 200px; }
+    .photo-mosaic {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 180px 180px 180px;
+    }
+    .photo-cell-featured { grid-row: span 1; }
+    .photo-caption { opacity: 1; transform: none; }
   }
 
   @media (max-width: 400px) {
     .content { padding: 20px 15px; }
     .profile { padding: 20px 15px; }
-    .photo-strip { grid-template-columns: repeat(2, 1fr); }
+    .photo-mosaic {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(3, 150px);
+    }
+    .sar-banner img { height: 160px; }
   }
 
   /* Work experience */
