@@ -32,7 +32,6 @@
     { src: './images/13-sar-highline-valley.jpg', alt: 'Tommy Adams smiling in helmet at highline over valley', caption: 'Highline Rigging — Red River Gorge' },
     { src: './images/12-sar-rappel-sandstone.jpg', alt: 'Tommy Adams rappelling sandstone cliff with helmet', caption: 'Technical Rope Rescue' },
     { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood Rescue — Floyd County' },
-    { src: './images/08-ridge-run-sunset.jpg', alt: 'Sunset ridge run overlooking Kentucky', caption: '2,500+ Consecutive Days Running' },
   ];
 
   function paragraphs(text) {
@@ -161,10 +160,6 @@
     {/if}
 
     <ResumeSection icon="🏃" title="Personal Excellence & Global Perspective">
-      <div class="trail-photo-banner">
-        <img src="./images/tommy-trail-running.jpg" alt="Tommy Adams trail running on a mountain ridge" />
-        <div class="trail-photo-caption">Running the ridgeline — one of 2,500+ consecutive days and counting</div>
-      </div>
       <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.{#if strava} <a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
       <div class="sunset-photo">
         <img src="./images/08-ridge-run-sunset.jpg" alt="Tommy Adams looking off into the distance at sunset on a Kentucky ridge" />
@@ -218,11 +213,11 @@
     margin-bottom: 0;
   }
 
-  /* Photo mosaic */
+  /* Photo mosaic — 4 photos: featured left spans 3 rows, 3 others stacked right */
   .photo-mosaic {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    grid-template-rows: 200px 200px;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: repeat(3, 150px);
     gap: 3px;
     background: #1e3a2f;
   }
@@ -235,7 +230,7 @@
   }
 
   .photo-cell-featured {
-    grid-row: span 2;
+    grid-row: span 3;
   }
 
   .photo-cell img {
@@ -313,35 +308,6 @@
     letter-spacing: 0.3px;
   }
 
-  /* Trail running banner */
-  .trail-photo-banner {
-    margin-bottom: 20px;
-    border-radius: 4px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .trail-photo-banner img {
-    width: 100%;
-    height: 240px;
-    object-fit: cover;
-    object-position: center 40%;
-    display: block;
-  }
-
-  .trail-photo-caption {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.6));
-    color: white;
-    padding: 28px 18px 12px;
-    font-size: 0.85em;
-    font-style: italic;
-    letter-spacing: 0.3px;
-  }
-
   /* Sunset photo after Strava link */
   .sunset-photo {
     margin: 16px 0 20px;
@@ -374,14 +340,13 @@
   @media (max-width: 768px) {
     .content { padding: 25px 18px; }
     .profile { padding: 25px 18px; }
-    .trail-photo-banner img { height: 150px; }
     .sar-banner img { height: 160px; }
     .classroom-banner img { height: 160px; }
     .sunset-photo img { height: 180px; }
     .teaching-grid { grid-template-columns: repeat(2, 1fr); }
     .photo-mosaic {
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: 155px 155px 155px;
+      grid-template-rows: 155px 155px;
     }
     .photo-cell-featured { grid-row: span 1; }
     .photo-caption { opacity: 1; transform: none; }
@@ -392,9 +357,8 @@
     .profile { padding: 20px 15px; }
     .photo-mosaic {
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: repeat(3, 130px);
+      grid-template-rows: repeat(2, 130px);
     }
-    .trail-photo-banner img { height: 130px; }
     .sar-banner img { height: 140px; }
     .classroom-banner img { height: 140px; }
     .sunset-photo img { height: 160px; }
