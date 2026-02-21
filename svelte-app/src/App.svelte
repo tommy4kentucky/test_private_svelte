@@ -8,6 +8,7 @@
     name: data.name,
     title: data.title,
     location: data.location,
+    linkedin: data.linkedin || '',
     photoSrc: './images/tommy-portrait.jpg',
     photoAlt: data.name,
     statement: data.statement
@@ -43,6 +44,7 @@
     name={profile.name}
     title={profile.title}
     location={profile.location}
+    linkedin={profile.linkedin}
     photoSrc={profile.photoSrc}
     photoAlt={profile.photoAlt}
   />
@@ -66,6 +68,46 @@
 
   <div class="content">
 
+    <ResumeSection icon="🎓" title="Teaching & Communication" highlights={educationHighlights}>
+      <div class="classroom-banner">
+        <img src="./images/10-classroom-professor.png" alt="Tommy Adams in the classroom" />
+        <div class="classroom-banner-caption">17+ years shaping communicators — across 10+ universities</div>
+      </div>
+      {#each paragraphs(data.educationContent) as para}
+        <p>{para}</p>
+      {/each}
+      {#if teachingInstitutions.length > 0}
+        <div class="teaching-grid-label">Institutions taught at</div>
+        <div class="teaching-grid">
+          {#each teachingInstitutions as inst}
+            <div class="teaching-card">{inst}</div>
+          {/each}
+        </div>
+      {/if}
+      {#if educationDegreesList.length > 0}
+        <div class="degrees-label">Academic Degrees</div>
+        <div class="degrees">
+          {#each educationDegreesList as d}
+            <div class="degree-card">
+              <span class="degree-label">{d.degree}</span>
+              <span class="degree-field">{d.field}</span>
+              <span class="degree-inst">{d.institution}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </ResumeSection>
+
+    <ResumeSection icon="🚨" title="Emergency Management Leadership" highlights={emergencyHighlights}>
+      <div class="sar-banner">
+        <img src="./images/07-sar-cliff-edge-fog.jpg" alt="Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation" />
+        <div class="sar-banner-caption">Cliff rescue operations — Red River Gorge area</div>
+      </div>
+      {#each paragraphs(data.emergencyContent) as para}
+        <p>{para}</p>
+      {/each}
+    </ResumeSection>
+
     <ResumeSection icon="💼" title="Work Experience">
       {#each workExperience as job}
         <div class="job">
@@ -83,41 +125,6 @@
           </ul>
         </div>
       {/each}
-    </ResumeSection>
-
-    <ResumeSection icon="🚨" title="Emergency Management Leadership" highlights={emergencyHighlights}>
-      <div class="sar-banner">
-        <img src="./images/07-sar-cliff-edge-fog.jpg" alt="Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation" />
-        <div class="sar-banner-caption">Cliff rescue operations — Red River Gorge area</div>
-      </div>
-      {#each paragraphs(data.emergencyContent) as para}
-        <p>{para}</p>
-      {/each}
-    </ResumeSection>
-
-    <ResumeSection icon="🎓" title="Education & Communication Excellence" highlights={educationHighlights}>
-      {#if educationDegreesList.length > 0}
-        <div class="degrees">
-          {#each educationDegreesList as d}
-            <div class="degree-card">
-              <span class="degree-label">{d.degree}</span>
-              <span class="degree-field">{d.field}</span>
-              <span class="degree-inst">{d.institution}</span>
-            </div>
-          {/each}
-        </div>
-      {/if}
-      {#each paragraphs(data.educationContent) as para}
-        <p>{para}</p>
-      {/each}
-      {#if teachingInstitutions.length > 0}
-        <div class="teaching-label">Teaching institutions include:</div>
-        <div class="teaching-orgs">
-          {#each teachingInstitutions as inst}
-            <span class="teaching-badge">{inst}</span>
-          {/each}
-        </div>
-      {/if}
     </ResumeSection>
 
     {#if publications.length > 0}
@@ -331,6 +338,8 @@
     .profile { padding: 25px 18px; }
     .trail-photo-banner img { height: 180px; }
     .sar-banner img { height: 200px; }
+    .classroom-banner img { height: 200px; }
+    .teaching-grid { grid-template-columns: repeat(2, 1fr); }
     .photo-mosaic {
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 180px 180px 180px;
@@ -456,29 +465,71 @@
     white-space: nowrap;
   }
 
-  /* Teaching institutions */
-  .teaching-label {
+  /* Classroom banner */
+  .classroom-banner {
+    margin-bottom: 22px;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .classroom-banner img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    object-position: center 20%;
+    display: block;
+  }
+
+  .classroom-banner-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.65));
+    color: white;
+    padding: 28px 18px 12px;
     font-size: 0.85em;
-    color: #7a8a84;
-    margin-top: 18px;
-    margin-bottom: 8px;
     font-style: italic;
+    letter-spacing: 0.3px;
   }
 
-  .teaching-orgs {
-    display: flex;
-    flex-wrap: wrap;
+  /* Teaching grid */
+  .teaching-grid-label {
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #4a7c6b;
+    margin-top: 22px;
+    margin-bottom: 10px;
+  }
+
+  .teaching-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
     gap: 8px;
+    margin-bottom: 28px;
   }
 
-  .teaching-badge {
-    background: #e8f0ec;
-    color: #2d5a47;
-    padding: 5px 12px;
-    border-radius: 3px;
-    font-size: 0.82em;
+  .teaching-card {
+    background: #f0f6f3;
+    border-left: 3px solid #4a7c6b;
+    padding: 10px 14px;
+    font-size: 0.88em;
     font-weight: 600;
-    border: 1px solid #b8d4c4;
+    color: #1e3a2f;
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* Degrees sub-section */
+  .degrees-label {
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #4a7c6b;
+    margin-bottom: 10px;
   }
 
   /* Publications */

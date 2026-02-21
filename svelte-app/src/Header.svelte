@@ -4,6 +4,7 @@
   export let location;
   export let photoSrc;
   export let photoAlt;
+  export let linkedin = '';
 </script>
 
 <div class="header">
@@ -14,9 +15,19 @@
         <img src={photoSrc} alt={photoAlt} />
       </div>
     {/if}
-    <h2>{title}</h2>
-    <h1>{name}</h1>
-    <div class="location">{location}</div>
+    <div class="header-text">
+      <div class="title">{title}</div>
+      <h1>{name}</h1>
+      <div class="location">{location}</div>
+      {#if linkedin}
+        <a class="linkedin-link" href={linkedin} target="_blank" rel="noopener noreferrer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+          LinkedIn
+        </a>
+      {/if}
+    </div>
   </div>
 </div>
 
@@ -24,8 +35,7 @@
   .header {
     background: linear-gradient(160deg, #1e3a2f 0%, #2d5a47 100%);
     color: white;
-    padding: 50px 40px;
-    text-align: center;
+    padding: 40px;
     position: relative;
     overflow: hidden;
   }
@@ -41,59 +51,93 @@
   .header-content {
     position: relative;
     z-index: 1;
-  }
-
-  h1 {
-    font-size: 2.8em;
-    margin-bottom: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-  }
-
-  h2 {
-    font-size: 1.3em;
-    font-weight: 300;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #c8a45c;
-    margin-bottom: 5px;
-  }
-
-  .location {
-    font-size: 0.95em;
-    font-weight: 300;
-    margin-top: 10px;
-    opacity: 0.85;
-    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 36px;
   }
 
   .profile-photo {
-    width: 170px;
-    height: 170px;
-    margin: 0 auto 25px;
-    border-radius: 50%;
+    width: 190px;
+    height: 240px;
+    flex-shrink: 0;
+    border-radius: 6px;
     overflow: hidden;
-    border: 4px solid #c8a45c;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    border: 3px solid rgba(200, 164, 92, 0.7);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
   }
 
   .profile-photo img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 20%;
+    object-position: center 15%;
+  }
+
+  .header-text {
+    flex: 1;
+  }
+
+  .title {
+    font-size: 0.85em;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #c8a45c;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  h1 {
+    font-size: 2.6em;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin: 0 0 10px;
+    line-height: 1.1;
+  }
+
+  .location {
+    font-size: 0.9em;
+    font-weight: 300;
+    opacity: 0.8;
+    letter-spacing: 0.3px;
+    margin-bottom: 16px;
+  }
+
+  .linkedin-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: white;
+    text-decoration: none;
+    font-size: 0.88em;
+    font-weight: 500;
+    opacity: 0.85;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 14px;
+    border-radius: 4px;
+    transition: opacity 0.2s, border-color 0.2s;
+  }
+
+  .linkedin-link:hover {
+    opacity: 1;
+    border-color: rgba(255,255,255,0.7);
   }
 
   @media (max-width: 768px) {
-    h1 { font-size: 2em; }
-    h2 { font-size: 1.05em; letter-spacing: 1.5px; }
-    .header { padding: 35px 20px; }
-    .profile-photo { width: 130px; height: 130px; }
+    .header { padding: 30px 24px; }
+    .header-content { gap: 24px; }
+    .profile-photo { width: 140px; height: 180px; }
+    h1 { font-size: 1.8em; }
+    .title { font-size: 0.78em; letter-spacing: 1px; }
   }
 
-  @media (max-width: 400px) {
-    h1 { font-size: 1.6em; }
-    h2 { font-size: 0.9em; }
-    .profile-photo { width: 110px; height: 110px; }
+  @media (max-width: 500px) {
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    .profile-photo { width: 120px; height: 155px; }
+    h1 { font-size: 1.5em; }
   }
 </style>
