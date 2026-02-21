@@ -26,6 +26,7 @@
   const awards = data.awards || [];
   const workExperience = data.workExperience || [];
   const educationDegreesList = data.educationDegreesList || [];
+  const executiveEducation = data.executiveEducation || [];
   const teachingInstitutions = data.teachingInstitutions || [];
 
   const photos = [
@@ -93,6 +94,24 @@
         <div class="teaching-grid">
           {#each teachingInstitutions as inst}
             <div class="teaching-card">{inst}</div>
+          {/each}
+        </div>
+      {/if}
+      {#if executiveEducation.length > 0}
+        <div class="degrees-label">Executive Education</div>
+        <div class="exec-ed-list">
+          {#each executiveEducation as ed}
+            <div class="exec-ed-card" class:upcoming={ed.status === 'upcoming'}>
+              <div class="exec-ed-top">
+                <span class="exec-ed-program">{ed.program}</span>
+                {#if ed.status === 'upcoming'}
+                  <span class="exec-ed-badge upcoming-badge">Upcoming</span>
+                {:else}
+                  <span class="exec-ed-year">{ed.year}</span>
+                {/if}
+              </div>
+              <div class="exec-ed-inst">{ed.institution}{ed.status === 'upcoming' ? ` — ${ed.year}` : ''}</div>
+            </div>
           {/each}
         </div>
       {/if}
@@ -520,7 +539,76 @@
     text-transform: uppercase;
     letter-spacing: 1.2px;
     color: #4a7c6b;
+    margin-top: 24px;
     margin-bottom: 10px;
+  }
+
+  /* Executive Education */
+  .exec-ed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .exec-ed-card {
+    background: #f0f6f3;
+    border-left: 3px solid #4a7c6b;
+    padding: 12px 16px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .exec-ed-card.upcoming {
+    background: #fdf8ee;
+    border-left-color: #c8a45c;
+  }
+
+  .exec-ed-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .exec-ed-program {
+    font-weight: 700;
+    color: #1e3a2f;
+    font-size: 0.95em;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .exec-ed-year {
+    font-size: 0.82em;
+    color: #7a8a84;
+    white-space: nowrap;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .upcoming-badge {
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #8a6a1a;
+    background: #fdf5dc;
+    border: 1px solid #e8d898;
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .exec-ed-inst {
+    font-size: 0.85em;
+    color: #4a7c6b;
+    font-weight: 500;
+  }
+
+  .exec-ed-card.upcoming .exec-ed-inst {
+    color: #8a6a1a;
   }
 
   .strava-link {
