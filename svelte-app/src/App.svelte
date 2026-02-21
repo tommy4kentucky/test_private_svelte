@@ -83,8 +83,14 @@
       {/each}
       {#if data.sarTeamPhoto}
         <div class="group-photo-wrap">
-          <img class="group-photo-wide" src="./images/{data.sarTeamPhoto}" alt={data.sarTeamPhotoAlt || 'Wolfe County Search & Rescue team'} />
-          <div class="group-photo-caption">{data.sarTeamPhotoAlt || 'Wolfe County Search & Rescue team'}</div>
+          <img class="group-photo-wide" src="./images/{data.sarTeamPhoto}" alt={data.sarTeamPhotoAlt || 'Floyd County flood rescue team'} />
+          <div class="group-photo-caption">{data.sarTeamPhotoAlt || 'Floyd County flood rescue team'}</div>
+        </div>
+      {/if}
+      {#if data.wolfeCountySarPhoto}
+        <div class="group-photo-wrap">
+          <img class="group-photo-wide" src="./images/{data.wolfeCountySarPhoto}" alt={data.wolfeCountySarPhotoAlt || 'Wolfe County Search & Rescue team'} />
+          <div class="group-photo-caption">{data.wolfeCountySarPhotoAlt || 'Wolfe County Search & Rescue team'}</div>
         </div>
       {/if}
     </ResumeSection>
@@ -218,7 +224,7 @@
         <div class="running-photo-grid">
           {#each runningStartPhotos as photo}
             <div class="running-photo-item">
-              <img src="./images/{photo.file}" alt={photo.alt || 'Running Start group'} />
+              <img src="./images/{encodeURIComponent(photo.file)}" alt={photo.alt || 'Running Start group'} />
               {#if photo.caption}
                 <div class="running-photo-caption">{photo.caption}</div>
               {/if}

@@ -81,8 +81,31 @@
     "FEMA"
   ],
   "sarTeamPhoto": "PXL_20230521_171346514.MP.jpg",
-  "sarTeamPhotoAlt": "Floyd County Flood Rescue Training — multi-agency team",
-  "runningStartPhotos": [],
+  "sarTeamPhotoAlt": "WCSAR Water Rescue Certification — Floyd County",
+  "wolfeCountySarPhoto": "image.jpg",
+  "wolfeCountySarPhotoAlt": "Wolfe County Search & Rescue team",
+  "runningStartPhotos": [
+    {
+      "file": "image (1).jpg",
+      "alt": "Tommy Adams volunteering with A Running Start youth runners",
+      "caption": "A Running Start — Youth mentorship run"
+    },
+    {
+      "file": "received_573337541748730.jpg",
+      "alt": "A Running Start group training event",
+      "caption": "A Running Start — Group training session"
+    },
+    {
+      "file": "image (4).jpg",
+      "alt": "A Running Start community running event",
+      "caption": "A Running Start — Community run event"
+    },
+    {
+      "file": "image (5).jpg",
+      "alt": "A Running Start youth runners at finish",
+      "caption": "A Running Start — Young runners crossing the finish"
+    }
+  ],
   "runningPhotos": [
     {
       "file": "PXL_20230115_222355929.PORTRAIT~2.jpg",
@@ -102,7 +125,7 @@
       "program": "Executive Education: Radiological Emergency Preparedness (REP)",
       "year": "2025",
       "status": "completed",
-      "photo": "",
+      "photo": "d351db61-1de8-42d2-b480-a33143516031~1.jpg",
       "photoAlt": "CHDS cohort group photo"
     },
     {
