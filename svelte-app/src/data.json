@@ -73,5 +73,117 @@
     "National Communication Association",
     "FEMA"
   ],
-  "educationDegrees": "Ph.D. Candidacy – Communication Arts & Sciences (Rhetoric, Politics, & Democratic Deliberation), Penn State University; M.A. Communication Studies (Political Communication), San Diego State University; B.A. Speech Communication & Philosophy (Double Major), Pepperdine University"
+  "educationDegrees": "Ph.D. Candidacy – Communication Arts & Sciences (Rhetoric, Politics, & Democratic Deliberation), Penn State University; M.A. Communication Studies (Political Communication), San Diego State University; B.A. Speech Communication & Philosophy (Double Major), Pepperdine University",
+  "educationDegreesList": [
+    {
+      "degree": "Ph.D. Candidacy",
+      "field": "Communication Arts & Sciences — Rhetoric, Politics & Democratic Deliberation",
+      "institution": "Penn State University"
+    },
+    {
+      "degree": "M.A.",
+      "field": "Communication Studies — Political Communication",
+      "institution": "San Diego State University"
+    },
+    {
+      "degree": "B.A.",
+      "field": "Speech Communication & Philosophy (Double Major)",
+      "institution": "Pepperdine University"
+    }
+  ],
+  "publications": [
+    {
+      "title": "Memes as a Communicative Act",
+      "publisher": "Meme Life",
+      "year": "2021",
+      "role": "Author",
+      "award": "National Communication Association Book Award Winner (2023)"
+    },
+    {
+      "title": "Towers of Rhetoric: Memory and Reinvention",
+      "publisher": "Penn State University Press",
+      "year": "2018",
+      "role": "Research Partner"
+    }
+  ],
+  "awards": [
+    "Honorable Kentucky Colonel — Governor Andy Beshear (2022)",
+    "Public Service Recognition — Kentucky Emergency Management / Team Kentucky (2023)",
+    "National Communication Association Book Award Winner (2023)",
+    "Critical Thinking Teacher of the Year Nominee (2015)",
+    "Teacher Who Made a Difference Award (2014)"
+  ],
+  "workExperience": [
+    {
+      "title": "Section Supervisor — Chemical Stockpile Emergency Preparedness Program",
+      "org": "Kentucky Emergency Management (KYEM)",
+      "dates": "May 2023 – Present",
+      "bullets": [
+        "Oversee CSEPP stewardship and drawdown; FEMA-funded position",
+        "Serve on State EOC in multiple roles: Planning Section Chief, Field Ops, Logistics, Public Safety Branch, ESF5",
+        "High-level coordination with federal, state, and local partners including U.S. Army and National Guard"
+      ]
+    },
+    {
+      "title": "Officer, Treasurer & Finance Officer",
+      "org": "Wolfe County Search & Rescue (501c3)",
+      "dates": "January 2021 – Present",
+      "bullets": [
+        "Active team member certified as Wilderness First Responder, Rope Rescue Technician, and Swift Water Rescue Technician",
+        "FEMA NIMS / ICS certified; responded to Eastern Kentucky floods (2022) and numerous search operations",
+        "Manage organizational finances, grant reporting, and regulatory compliance"
+      ]
+    },
+    {
+      "title": "Visiting Assistant Professor — Communication",
+      "org": "Ohio Northern University",
+      "dates": "2021 – 2023",
+      "bullets": [
+        "Taught public speaking, communication theory, and conflict management",
+        "Designed curricula and mentored students through challenging communication scenarios"
+      ]
+    },
+    {
+      "title": "Full-time Faculty — Communication",
+      "org": "Texas A&M University",
+      "dates": "Prior",
+      "bullets": [
+        "Taught communication courses; mentored faculty and coached hundreds of students"
+      ]
+    },
+    {
+      "title": "Communications Area Faculty",
+      "org": "Bluegrass Community & Technical College",
+      "dates": "Prior",
+      "bullets": [
+        "Delivered university-level communication instruction to diverse student populations"
+      ]
+    },
+    {
+      "title": "Executive Director / Interim President",
+      "org": "Friends of Hemp",
+      "dates": "2019 – 2020",
+      "bullets": [
+        "Led nonprofit operations, strategic communications, and stakeholder relations"
+      ]
+    },
+    {
+      "title": "Communications Director",
+      "org": "Hemp Feed Coalition",
+      "dates": "2019 – 2020",
+      "bullets": [
+        "Directed strategic messaging, media relations, and public information campaigns"
+      ]
+    }
+  ],
+  "teachingInstitutions": [
+    "Ohio Northern University",
+    "Texas A&M University",
+    "Bluegrass Community & Technical College",
+    "University of Kentucky",
+    "Penn State University",
+    "San Diego State University",
+    "Shanghai University (China)",
+    "Pepperdine University"
+  ]
 }
