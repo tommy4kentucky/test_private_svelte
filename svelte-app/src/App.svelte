@@ -218,7 +218,7 @@
         <div class="running-photo-grid">
           {#each runningStartPhotos as photo}
             <div class="running-photo-item">
-              <img src="./images/{photo.file}" alt={photo.alt || 'Running Start group'} />
+              <img src="./images/{encodeURIComponent(photo.file)}" alt={photo.alt || 'Running Start group'} />
               {#if photo.caption}
                 <div class="running-photo-caption">{photo.caption}</div>
               {/if}
