@@ -34,8 +34,6 @@
   const photos = [
     { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'Wolfe County SAR' },
     { src: './images/13-sar-highline-valley.jpg', alt: 'Tommy Adams smiling in helmet at highline over valley', caption: 'Highline Rigging — Red River Gorge' },
-    { src: './images/12-sar-rappel-sandstone.jpg', alt: 'Tommy Adams rappelling sandstone cliff with helmet', caption: 'Technical Rope Rescue' },
-    { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood Rescue — Floyd County', objectPosition: 'center center' },
   ];
 
   let lightboxSrc = '';
@@ -117,6 +115,10 @@
           <div class="group-photo-caption">{data.wolfeCountySarPhotoAlt || 'Wolfe County Search & Rescue team'}</div>
         </div>
       {/if}
+      <div class="group-photo-wrap">
+        <img class="group-photo-wide" src="./images/12-sar-rappel-sandstone.jpg" alt="Tommy Adams rappelling sandstone cliff with helmet" />
+        <div class="group-photo-caption">Technical Rope Rescue</div>
+      </div>
     </ResumeSection>
 
     <ResumeSection icon="🎓" title="Teaching & Communication" highlights={educationHighlights}>
@@ -228,12 +230,12 @@
       <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.{#if strava} <a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
       <p><strong>Globally-Minded Traveler:</strong> Visited 30+ countries across six continents including Italy, UK, Germany, France, China, Japan, Thailand, Australia, Brazil, New Zealand, and many others. Studied abroad in Florence, Italy (Pepperdine University International Programs) and taught in Shanghai, China as Visiting Professor.</p>
       {#if runningPhotos.length > 0}
-        <div class="running-photo-grid">
+        <div class="running-banner-list">
           {#each runningPhotos as photo}
-            <div class="running-photo-item">
+            <div class="running-banner-item">
               <img src="./images/{photo.file}" alt={photo.alt} />
               {#if photo.caption}
-                <div class="running-photo-caption">{photo.caption}</div>
+                <div class="running-banner-caption">{photo.caption}</div>
               {/if}
             </div>
           {/each}
@@ -311,11 +313,11 @@
     display: block;
   }
 
-  /* Photo mosaic — 4 photos in clean 2×2 grid */
+  /* Photo mosaic — 2 photos side by side */
   .photo-mosaic {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 220px 220px;
+    grid-template-rows: 320px;
     gap: 3px;
     background: #1e3a2f;
   }
@@ -413,13 +415,13 @@
     .sar-banner img { height: 160px; }
     .classroom-banner img { height: 160px; }
     .teaching-grid { grid-template-columns: repeat(2, 1fr); }
-    .photo-mosaic { grid-template-rows: 160px 160px; }
+    .photo-mosaic { grid-template-rows: 220px; }
   }
 
   @media (max-width: 400px) {
     .content { padding: 20px 15px; }
     .profile { padding: 20px 15px; }
-    .photo-mosaic { grid-template-rows: 130px 130px; }
+    .photo-mosaic { grid-template-rows: 180px; }
     .sar-banner img { height: 140px; }
     .classroom-banner img { height: 140px; }
   }
@@ -696,6 +698,44 @@
     font-style: italic;
   }
 
+  /* Full-width running photo banner */
+  .running-banner-list {
+    margin-top: 20px;
+  }
+
+  .running-banner-item {
+    position: relative;
+    width: 100%;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .running-banner-item img {
+    width: 100%;
+    height: 380px;
+    object-fit: cover;
+    object-position: center 30%;
+    display: block;
+  }
+
+  .running-banner-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.6));
+    color: white;
+    padding: 28px 18px 12px;
+    font-size: 0.85em;
+    font-style: italic;
+    letter-spacing: 0.3px;
+  }
+
+  @media (max-width: 768px) {
+    .running-banner-item img { height: 240px; }
+  }
+
   /* Running Start photo grid */
   .running-photo-grid {
     display: grid;
@@ -710,14 +750,6 @@
     object-fit: cover;
     border-radius: 6px;
     display: block;
-  }
-
-  .running-photo-caption {
-    font-size: 0.78em;
-    color: #6b7c74;
-    text-align: center;
-    margin-top: 5px;
-    font-style: italic;
   }
 
   .strava-link {

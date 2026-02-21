@@ -103,11 +103,12 @@
   }
 
   h1 {
-    font-size: 2.6em;
+    font-size: clamp(0.9rem, 4.5vw, 2.6em);
     font-weight: 700;
     letter-spacing: 0.5px;
     margin: 0 0 10px;
     line-height: 1.1;
+    white-space: nowrap;
   }
 
   .location {
@@ -149,7 +150,6 @@
     .header { padding: 30px 24px; }
     .header-content { gap: 24px; }
     .profile-photo { width: 140px; height: 180px; }
-    h1 { font-size: 1.8em; }
     .title { font-size: 0.78em; letter-spacing: 1px; }
   }
 
@@ -160,6 +160,5 @@
       gap: 20px;
     }
     .profile-photo { width: 120px; height: 155px; }
-    h1 { font-size: 1.5em; }
   }
 </style>
