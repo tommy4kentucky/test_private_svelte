@@ -19,6 +19,11 @@
   const publicServiceHighlights = data.publicServiceHighlights;
   const coreSkills = data.coreSkills;
   const affiliations = data.affiliations;
+  const publications = data.publications || [];
+  const awards = data.awards || [];
+  const workExperience = data.workExperience || [];
+  const educationDegreesList = data.educationDegreesList || [];
+  const teachingInstitutions = data.teachingInstitutions || [];
 
   const photos = [
     { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood rescue — Floyd County' },
@@ -59,6 +64,25 @@
 
   <div class="content">
 
+    <ResumeSection icon="💼" title="Work Experience">
+      {#each workExperience as job}
+        <div class="job">
+          <div class="job-header">
+            <div class="job-title-wrap">
+              <span class="job-title">{job.title}</span>
+              <span class="job-org">{job.org}</span>
+            </div>
+            <span class="job-dates">{job.dates}</span>
+          </div>
+          <ul class="job-bullets">
+            {#each job.bullets as bullet}
+              <li>{bullet}</li>
+            {/each}
+          </ul>
+        </div>
+      {/each}
+    </ResumeSection>
+
     <ResumeSection icon="🚨" title="Emergency Management Leadership" highlights={emergencyHighlights}>
       {#each paragraphs(data.emergencyContent) as para}
         <p>{para}</p>
@@ -66,10 +90,55 @@
     </ResumeSection>
 
     <ResumeSection icon="🎓" title="Education & Communication Excellence" highlights={educationHighlights}>
+      {#if educationDegreesList.length > 0}
+        <div class="degrees">
+          {#each educationDegreesList as d}
+            <div class="degree-card">
+              <span class="degree-label">{d.degree}</span>
+              <span class="degree-field">{d.field}</span>
+              <span class="degree-inst">{d.institution}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
       {#each paragraphs(data.educationContent) as para}
         <p>{para}</p>
       {/each}
+      {#if teachingInstitutions.length > 0}
+        <div class="teaching-label">Teaching institutions include:</div>
+        <div class="teaching-orgs">
+          {#each teachingInstitutions as inst}
+            <span class="teaching-badge">{inst}</span>
+          {/each}
+        </div>
+      {/if}
     </ResumeSection>
+
+    {#if publications.length > 0}
+    <ResumeSection icon="📚" title="Publications & Scholarship">
+      <div class="pub-list">
+        {#each publications as pub}
+          <div class="pub-item">
+            <div class="pub-title">"{pub.title}"</div>
+            <div class="pub-meta">{pub.role} · {pub.publisher} · {pub.year}</div>
+            {#if pub.award}
+              <div class="pub-award">🏆 {pub.award}</div>
+            {/if}
+          </div>
+        {/each}
+      </div>
+    </ResumeSection>
+    {/if}
+
+    {#if awards.length > 0}
+    <ResumeSection icon="🏆" title="Awards & Recognition">
+      <ul class="awards-list">
+        {#each awards as award}
+          <li>{award}</li>
+        {/each}
+      </ul>
+    </ResumeSection>
+    {/if}
 
     <ResumeSection icon="🤝" title="Public Service & Nonprofit Leadership" highlights={publicServiceHighlights}>
       {#each paragraphs(data.publicServiceContent) as para}
@@ -90,12 +159,10 @@
       </div>
       <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.</p>
       <p><strong>Globally-Minded Traveler:</strong> Visited 30+ countries across six continents including Italy, UK, Germany, France, China, Japan, Thailand, Australia, Brazil, New Zealand, and many others. Studied abroad in Florence, Italy (Pepperdine University International Programs) and taught in Shanghai, China as Visiting Professor.</p>
-      <p><strong>Honors & Recognition:</strong> Honorable Kentucky Colonel (Governor Andy Beshear, 2022); Public Service Recognition – Kentucky Emergency Management/Team Kentucky (2023); National Communication Association Book Award Winner (2023)</p>
       <p><strong>Community Service & Mentorship:</strong> Active volunteer and mentor with A Running Start (2021–Present); founder of campus run clubs; advisor to student organizations; judge for business pitch competitions; extensive committee service across academic and community organizations</p>
     </ResumeSection>
 
-    <ResumeSection icon="🏢" title="Professional Affiliations & Education" orgs={affiliations}>
-      <p><strong>Education:</strong> {data.educationDegrees}</p>
+    <ResumeSection icon="🏢" title="Professional Affiliations" orgs={affiliations}>
     </ResumeSection>
 
   </div>
@@ -202,6 +269,211 @@
     .content { padding: 20px 15px; }
     .profile { padding: 20px 15px; }
     .photo-strip { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Work experience */
+  .job {
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e8e2d8;
+  }
+
+  .job:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .job-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .job-title {
+    font-weight: 700;
+    color: #1e3a2f;
+    font-size: 1em;
+    line-height: 1.3;
+  }
+
+  .job-org {
+    font-size: 0.9em;
+    color: #4a7c6b;
+    font-weight: 600;
+  }
+
+  .job-dates {
+    font-size: 0.85em;
+    color: #7a8a84;
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+
+  .job-bullets {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .job-bullets li {
+    padding: 5px 0 5px 22px;
+    position: relative;
+    font-size: 0.95em;
+    color: #34403b;
+    line-height: 1.6;
+  }
+
+  .job-bullets li::before {
+    content: "•";
+    position: absolute;
+    left: 6px;
+    color: #4a7c6b;
+  }
+
+  /* Degrees */
+  .degrees {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+
+  .degree-card {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    background: #f5f2ec;
+    border-left: 3px solid #4a7c6b;
+    padding: 10px 16px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .degree-label {
+    font-weight: 700;
+    color: #1e3a2f;
+    font-size: 0.9em;
+    min-width: 120px;
+    flex-shrink: 0;
+  }
+
+  .degree-field {
+    color: #34403b;
+    font-size: 0.9em;
+    flex: 1;
+  }
+
+  .degree-inst {
+    font-size: 0.85em;
+    color: #4a7c6b;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Teaching institutions */
+  .teaching-label {
+    font-size: 0.85em;
+    color: #7a8a84;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+
+  .teaching-orgs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .teaching-badge {
+    background: #e8f0ec;
+    color: #2d5a47;
+    padding: 5px 12px;
+    border-radius: 3px;
+    font-size: 0.82em;
+    font-weight: 600;
+    border: 1px solid #b8d4c4;
+  }
+
+  /* Publications */
+  .pub-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .pub-item {
+    background: #faf8f5;
+    border: 1px solid #e0d9cf;
+    border-radius: 4px;
+    padding: 16px 20px;
+  }
+
+  .pub-title {
+    font-weight: 700;
+    color: #1e3a2f;
+    font-size: 1em;
+    margin-bottom: 4px;
+  }
+
+  .pub-meta {
+    font-size: 0.88em;
+    color: #7a8a84;
+    margin-bottom: 6px;
+  }
+
+  .pub-award {
+    font-size: 0.88em;
+    color: #8a6a1a;
+    font-weight: 600;
+    background: #fdf5dc;
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 3px;
+    border: 1px solid #e8d898;
+  }
+
+  /* Awards */
+  .awards-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .awards-list li {
+    padding: 10px 16px 10px 44px;
+    position: relative;
+    background: #faf8f5;
+    border-radius: 4px;
+    color: #2d3a35;
+    font-size: 0.95em;
+    border: 1px solid #e0d9cf;
+  }
+
+  .awards-list li::before {
+    content: "🏆";
+    position: absolute;
+    left: 12px;
+    top: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .job-header { flex-direction: column; gap: 4px; }
+    .job-dates { font-size: 0.82em; }
+    .degree-card { flex-direction: column; gap: 4px; }
+    .degree-label { min-width: unset; }
+    .degree-inst { white-space: normal; }
   }
 
   @media print {
