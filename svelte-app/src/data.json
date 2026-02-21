@@ -80,13 +80,18 @@
     "National Communication Association",
     "FEMA"
   ],
+  "sarTeamPhoto": "",
+  "sarTeamPhotoAlt": "Wolfe County Search & Rescue team",
+  "runningStartPhotos": [],
   "educationDegrees": "Ph.D. Candidacy – Communication Arts & Sciences (Rhetoric, Politics, & Democratic Deliberation), Penn State University; M.A. Communication Studies (Political Communication), San Diego State University; B.A. Speech Communication & Philosophy (Double Major), Pepperdine University",
   "executiveEducation": [
     {
       "institution": "Naval Postgraduate School — Center for Homeland Defense and Security (CHDS)",
       "program": "Executive Education: Radiological Emergency Preparedness (REP)",
       "year": "2025",
-      "status": "completed"
+      "status": "completed",
+      "photo": "",
+      "photoAlt": "CHDS cohort group photo"
     },
     {
       "institution": "Texas Engineering Extension Service (TEEX)",
