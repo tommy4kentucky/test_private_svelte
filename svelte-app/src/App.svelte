@@ -230,12 +230,12 @@
       <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.{#if strava} <a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
       <p><strong>Globally-Minded Traveler:</strong> Visited 30+ countries across six continents including Italy, UK, Germany, France, China, Japan, Thailand, Australia, Brazil, New Zealand, and many others. Studied abroad in Florence, Italy (Pepperdine University International Programs) and taught in Shanghai, China as Visiting Professor.</p>
       {#if runningPhotos.length > 0}
-        <div class="running-photo-grid">
+        <div class="running-banner-list">
           {#each runningPhotos as photo}
-            <div class="running-photo-item">
+            <div class="running-banner-item">
               <img src="./images/{photo.file}" alt={photo.alt} />
               {#if photo.caption}
-                <div class="running-photo-caption">{photo.caption}</div>
+                <div class="running-banner-caption">{photo.caption}</div>
               {/if}
             </div>
           {/each}
@@ -698,6 +698,44 @@
     font-style: italic;
   }
 
+  /* Full-width running photo banner */
+  .running-banner-list {
+    margin-top: 20px;
+  }
+
+  .running-banner-item {
+    position: relative;
+    width: 100%;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .running-banner-item img {
+    width: 100%;
+    height: 380px;
+    object-fit: cover;
+    object-position: center 30%;
+    display: block;
+  }
+
+  .running-banner-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.6));
+    color: white;
+    padding: 28px 18px 12px;
+    font-size: 0.85em;
+    font-style: italic;
+    letter-spacing: 0.3px;
+  }
+
+  @media (max-width: 768px) {
+    .running-banner-item img { height: 240px; }
+  }
+
   /* Running Start photo grid */
   .running-photo-grid {
     display: grid;
@@ -712,14 +750,6 @@
     object-fit: cover;
     border-radius: 6px;
     display: block;
-  }
-
-  .running-photo-caption {
-    font-size: 0.78em;
-    color: #6b7c74;
-    text-align: center;
-    margin-top: 5px;
-    font-style: italic;
   }
 
   .strava-link {
