@@ -183,6 +183,10 @@
     </ResumeSection>
 
   </div>
+
+  <div class="footer-photo">
+    <img src="./images/tommy-trail-running.jpg" alt="Tommy Adams trail running on a mountain ridge" />
+  </div>
 </div>
 
 <style>
@@ -211,6 +215,27 @@
 
   .profile p:last-child {
     margin-bottom: 0;
+  }
+
+  /* Footer panoramic photo */
+  .footer-photo {
+    overflow: hidden;
+  }
+
+  .footer-photo img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    object-position: center 40%;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .footer-photo img { height: 180px; }
+  }
+
+  @media (max-width: 400px) {
+    .footer-photo img { height: 140px; }
   }
 
   /* Photo mosaic — 4 photos: featured left spans 3 rows, 3 others stacked right */
