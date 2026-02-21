@@ -20,6 +20,7 @@
   const publicServiceHighlights = data.publicServiceHighlights;
   const coreSkills = data.coreSkills;
   const affiliations = data.affiliations;
+  const strava = data.strava || '';
   const publications = data.publications || [];
   const awards = data.awards || [];
   const workExperience = data.workExperience || [];
@@ -68,6 +69,16 @@
 
   <div class="content">
 
+    <ResumeSection icon="🚨" title="Emergency Management Leadership" highlights={emergencyHighlights}>
+      <div class="sar-banner">
+        <img src="./images/07-sar-cliff-edge-fog.jpg" alt="Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation" />
+        <div class="sar-banner-caption">Cliff rescue operations — Red River Gorge area</div>
+      </div>
+      {#each paragraphs(data.emergencyContent) as para}
+        <p>{para}</p>
+      {/each}
+    </ResumeSection>
+
     <ResumeSection icon="🎓" title="Teaching & Communication" highlights={educationHighlights}>
       <div class="classroom-banner">
         <img src="./images/10-classroom-professor.png" alt="Tommy Adams in the classroom" />
@@ -96,16 +107,6 @@
           {/each}
         </div>
       {/if}
-    </ResumeSection>
-
-    <ResumeSection icon="🚨" title="Emergency Management Leadership" highlights={emergencyHighlights}>
-      <div class="sar-banner">
-        <img src="./images/07-sar-cliff-edge-fog.jpg" alt="Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation" />
-        <div class="sar-banner-caption">Cliff rescue operations — Red River Gorge area</div>
-      </div>
-      {#each paragraphs(data.emergencyContent) as para}
-        <p>{para}</p>
-      {/each}
     </ResumeSection>
 
     <ResumeSection icon="💼" title="Work Experience">
@@ -170,7 +171,7 @@
         <img src="./images/tommy-trail-running.jpg" alt="Tommy Adams trail running on a mountain ridge" />
         <div class="trail-photo-caption">Running the ridgeline — one of 2,500+ consecutive days and counting</div>
       </div>
-      <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.</p>
+      <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.{#if strava} <a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
       <p><strong>Globally-Minded Traveler:</strong> Visited 30+ countries across six continents including Italy, UK, Germany, France, China, Japan, Thailand, Australia, Brazil, New Zealand, and many others. Studied abroad in Florence, Italy (Pepperdine University International Programs) and taught in Shanghai, China as Visiting Professor.</p>
       <p><strong>Community Service & Mentorship:</strong> Active volunteer and mentor with A Running Start (2021–Present); founder of campus run clubs; advisor to student organizations; judge for business pitch competitions; extensive committee service across academic and community organizations</p>
     </ResumeSection>
@@ -530,6 +531,17 @@
     letter-spacing: 1.2px;
     color: #4a7c6b;
     margin-bottom: 10px;
+  }
+
+  .strava-link {
+    color: #fc4c02;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .strava-link:hover {
+    text-decoration: underline;
   }
 
   /* Publications */
