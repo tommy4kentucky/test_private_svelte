@@ -3,7 +3,7 @@
  *
  * The Google Doc should use these section headings (## Heading Name):
  *   ## Professional Overview     → statement
- *   ## Educational Background    → educationDegrees
+ *   ## Educational Background    → educationDegrees + educationDegreesList
  *   ## Key Expertise Areas       → coreSkills (bullet list)
  *   ## Emergency Management      → emergencyContent
  *   ## Education & Teaching      → educationContent
@@ -11,6 +11,15 @@
  *   ## Certifications            → certificationsContent
  *   ## Professional Affiliations → affiliations (bullet list)
  *   ## Stats                     → stats (lines like "17+ | Years Teaching Experience")
+ *   ## Publications              → publications (lines like "Author | Title | Publisher | Year | Optional award")
+ *   ## Awards                    → awards (bullet list)
+ *   ## Work Experience           → workExperience (structured blocks, see below)
+ *   ## Teaching Institutions     → teachingInstitutions (bullet list)
+ *
+ * Work Experience block format (repeated per job):
+ *   ### Job Title | Org Name | Date Range
+ *   - bullet one
+ *   - bullet two
  */
 
 import { readFileSync, writeFileSync } from 'fs';
@@ -65,6 +74,57 @@ function parseStats(sectionText) {
     .filter(s => s.number && s.label);
 }
 
+function parsePublications(sectionText) {
+  return sectionText
+    .split('\n')
+    .map(l => l.trim())
+    .filter(Boolean)
+    .map(l => {
+      const parts = l.split('|').map(p => p.trim());
+      // Format: Role | Title | Publisher | Year | Award (optional)
+      if (parts.length < 4) return null;
+      const pub = { role: parts[0], title: parts[1], publisher: parts[2], year: parts[3] };
+      if (parts[4]) pub.award = parts[4];
+      return pub;
+    })
+    .filter(Boolean);
+}
+
+function parseDegrees(sectionText) {
+  return sectionText
+    .split('\n')
+    .map(l => l.replace(/^[-*•]\s*/, '').trim())
+    .filter(Boolean)
+    .map(l => {
+      // Format: "Degree | Field | Institution"
+      const parts = l.split('|').map(p => p.trim());
+      if (parts.length === 3) return { degree: parts[0], field: parts[1], institution: parts[2] };
+      // Fallback: treat the whole line as a flat string
+      return { degree: '', field: l, institution: '' };
+    });
+}
+
+function parseWorkExperience(sectionText) {
+  const jobs = [];
+  let current = null;
+
+  for (const raw of sectionText.split('\n')) {
+    const line = raw.trim();
+    if (!line) continue;
+
+    // Job header: ### Title | Org | Dates
+    if (line.startsWith('### ')) {
+      if (current) jobs.push(current);
+      const parts = line.replace(/^###\s*/, '').split('|').map(p => p.trim());
+      current = { title: parts[0] || '', org: parts[1] || '', dates: parts[2] || '', bullets: [] };
+    } else if (current && line.match(/^[-*•]/)) {
+      current.bullets.push(line.replace(/^[-*•]\s*/, '').trim());
+    }
+  }
+  if (current) jobs.push(current);
+  return jobs;
+}
+
 async function main() {
   const docText = await fetchDoc();
   const current = JSON.parse(readFileSync(DATA_PATH, 'utf8'));
@@ -75,11 +135,14 @@ async function main() {
   const overview = parseSection(docText, 'Professional Overview');
   if (overview) updated.statement = overview;
 
-  // Educational Background → educationDegrees
+  // Educational Background → educationDegrees + educationDegreesList
   const eduBg = parseSection(docText, 'Educational Background');
   if (eduBg) {
-    const degrees = parseBulletList(eduBg);
-    if (degrees.length > 0) updated.educationDegrees = degrees.join('; ');
+    const degrees = parseDegrees(eduBg);
+    if (degrees.length > 0) {
+      updated.educationDegreesList = degrees;
+      updated.educationDegrees = degrees.map(d => [d.degree, d.field, d.institution].filter(Boolean).join(' – ')).join('; ');
+    }
   }
 
   // Key Expertise Areas → coreSkills
@@ -117,6 +180,34 @@ async function main() {
   if (statsSection) {
     const stats = parseStats(statsSection);
     if (stats.length > 0) updated.stats = stats;
+  }
+
+  // Publications → publications
+  const pubSection = parseSection(docText, 'Publications');
+  if (pubSection) {
+    const pubs = parsePublications(pubSection);
+    if (pubs.length > 0) updated.publications = pubs;
+  }
+
+  // Awards → awards
+  const awardsSection = parseSection(docText, 'Awards');
+  if (awardsSection) {
+    const awardsList = parseBulletList(awardsSection);
+    if (awardsList.length > 0) updated.awards = awardsList;
+  }
+
+  // Work Experience → workExperience
+  const workSection = parseSection(docText, 'Work Experience');
+  if (workSection) {
+    const jobs = parseWorkExperience(workSection);
+    if (jobs.length > 0) updated.workExperience = jobs;
+  }
+
+  // Teaching Institutions → teachingInstitutions
+  const teachingSection = parseSection(docText, 'Teaching Institutions');
+  if (teachingSection) {
+    const insts = parseBulletList(teachingSection);
+    if (insts.length > 0) updated.teachingInstitutions = insts;
   }
 
   // Name/Title from doc title line (first non-empty line)
