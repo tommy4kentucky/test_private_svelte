@@ -4,43 +4,55 @@
   export let highlights = [];  // array of strings
   export let skills = [];      // array of strings (rendered as badge pills)
   export let orgs = [];        // array of strings (rendered as org badges)
+  export let collapsible = false;
+
+  let open = !collapsible;
+
+  function toggle() {
+    if (collapsible) open = !open;
+  }
 </script>
 
 <div class="section">
-  <div class="section-header">
+  <div class="section-header" class:clickable={collapsible} on:click={toggle} role={collapsible ? 'button' : undefined} tabindex={collapsible ? 0 : undefined} on:keydown={e => (e.key === 'Enter' || e.key === ' ') && toggle()}>
     {#if icon}
       <span class="section-icon">{icon}</span>
     {/if}
     <h3 class="section-title">{title}</h3>
-  </div>
-
-  <div class="section-content">
-    <slot />
-
-    {#if highlights.length > 0}
-      <ul class="highlights">
-        {#each highlights as item}
-          <li>{item}</li>
-        {/each}
-      </ul>
-    {/if}
-
-    {#if skills.length > 0}
-      <div class="skills-grid">
-        {#each skills as skill}
-          <div class="skill-badge">{skill}</div>
-        {/each}
-      </div>
-    {/if}
-
-    {#if orgs.length > 0}
-      <div class="org-list">
-        {#each orgs as org}
-          <div class="org-badge">{org}</div>
-        {/each}
-      </div>
+    {#if collapsible}
+      <span class="toggle-indicator" class:open>{open ? '−' : '+'}</span>
     {/if}
   </div>
+
+  {#if open}
+    <div class="section-content">
+      <slot />
+
+      {#if highlights.length > 0}
+        <ul class="highlights">
+          {#each highlights as item}
+            <li>{item}</li>
+          {/each}
+        </ul>
+      {/if}
+
+      {#if skills.length > 0}
+        <div class="skills-grid">
+          {#each skills as skill}
+            <div class="skill-badge">{skill}</div>
+          {/each}
+        </div>
+      {/if}
+
+      {#if orgs.length > 0}
+        <div class="org-list">
+          {#each orgs as org}
+            <div class="org-badge">{org}</div>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -60,6 +72,16 @@
     border-bottom: 2px solid #4a7c6b;
   }
 
+  .section-header.clickable {
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 0;
+  }
+
+  .section-header.clickable:hover .section-title {
+    color: #2d5a47;
+  }
+
   .section-icon {
     font-size: 1.8em;
     margin-right: 12px;
@@ -72,12 +94,24 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     margin: 0;
+    flex: 1;
+  }
+
+  .toggle-indicator {
+    font-size: 1.4em;
+    font-weight: 300;
+    color: #4a7c6b;
+    width: 28px;
+    text-align: center;
+    line-height: 1;
+    transition: transform 0.2s ease;
   }
 
   .section-content {
     color: #34403b;
     font-size: 1em;
     line-height: 1.7;
+    padding-top: 18px;
   }
 
   /* Highlights */
@@ -152,6 +186,7 @@
   }
 
   @media print {
-    .skill-badge:hover { transform: none; }
+    .section-content { display: block !important; }
+    .toggle-indicator { display: none; }
   }
 </style>

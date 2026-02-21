@@ -69,7 +69,7 @@
 
   <div class="content">
 
-    <ResumeSection icon="🚨" title="Emergency Management Leadership" highlights={emergencyHighlights}>
+    <ResumeSection icon="🚨" title="Emergency Management / Search & Rescue" highlights={emergencyHighlights}>
       <div class="sar-banner">
         <img src="./images/07-sar-cliff-edge-fog.jpg" alt="Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation" />
         <div class="sar-banner-caption">Cliff rescue operations — Red River Gorge area</div>
@@ -107,6 +107,12 @@
           {/each}
         </div>
       {/if}
+    </ResumeSection>
+
+    <ResumeSection icon="🤝" title="Nonprofit & Public Service Leadership" highlights={publicServiceHighlights}>
+      {#each paragraphs(data.publicServiceContent) as para}
+        <p>{para}</p>
+      {/each}
     </ResumeSection>
 
     <ResumeSection icon="💼" title="Work Experience">
@@ -154,29 +160,27 @@
     </ResumeSection>
     {/if}
 
-    <ResumeSection icon="🤝" title="Public Service & Nonprofit Leadership" highlights={publicServiceHighlights}>
-      {#each paragraphs(data.publicServiceContent) as para}
-        <p>{para}</p>
-      {/each}
-    </ResumeSection>
-
-    <ResumeSection icon="⚡" title="Core Competencies & Certifications" skills={coreSkills}>
-      {#each paragraphs(data.certificationsContent) as para}
-        <p>{para}</p>
-      {/each}
-    </ResumeSection>
-
-    <ResumeSection icon="🏃" title="Personal Excellence & Global Experience">
+    <ResumeSection icon="🏃" title="Personal Excellence & Global Perspective">
       <div class="trail-photo-banner">
         <img src="./images/tommy-trail-running.jpg" alt="Tommy Adams trail running on a mountain ridge" />
         <div class="trail-photo-caption">Running the ridgeline — one of 2,500+ consecutive days and counting</div>
       </div>
       <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.{#if strava} <a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
       <p><strong>Globally-Minded Traveler:</strong> Visited 30+ countries across six continents including Italy, UK, Germany, France, China, Japan, Thailand, Australia, Brazil, New Zealand, and many others. Studied abroad in Florence, Italy (Pepperdine University International Programs) and taught in Shanghai, China as Visiting Professor.</p>
-      <p><strong>Community Service & Mentorship:</strong> Active volunteer and mentor with A Running Start (2021–Present); founder of campus run clubs; advisor to student organizations; judge for business pitch competitions; extensive committee service across academic and community organizations</p>
     </ResumeSection>
 
-    <ResumeSection icon="🏢" title="Professional Affiliations" orgs={affiliations}>
+    <ResumeSection icon="🌱" title="Community Service & Volunteer Work">
+      <p>Active volunteer and mentor with <strong>A Running Start</strong> (2021–Present), a nonprofit supporting young runners. Founder of campus run clubs at multiple institutions. Advisor to student organizations, judge for business pitch competitions, and extensive committee service across academic and community organizations.</p>
+      <p>Member of Wolfe County Search & Rescue since 2021 — contributing not only as a field responder but as an officer, treasurer, and finance officer supporting the organizational health of the team.</p>
+    </ResumeSection>
+
+    <ResumeSection icon="⚡" title="Core Competencies & Certifications" skills={coreSkills} collapsible={true}>
+      {#each paragraphs(data.certificationsContent) as para}
+        <p>{para}</p>
+      {/each}
+    </ResumeSection>
+
+    <ResumeSection icon="🏢" title="Professional Affiliations" orgs={affiliations} collapsible={true}>
     </ResumeSection>
 
   </div>
