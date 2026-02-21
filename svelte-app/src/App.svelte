@@ -9,6 +9,7 @@
     title: data.title,
     location: data.location,
     linkedin: data.linkedin || '',
+    cvLink: data.cvLink || '',
     photoSrc: './images/tommy-portrait.jpg',
     photoAlt: data.name,
     statement: data.statement
@@ -28,7 +29,7 @@
   const teachingInstitutions = data.teachingInstitutions || [];
 
   const photos = [
-    { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'SAR Operations — Floyd County', featured: true },
+    { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'SAR Operations — Floyd County' },
     { src: './images/13-sar-highline-valley.jpg', alt: 'Tommy Adams smiling in helmet at highline over valley', caption: 'Highline Rigging — Red River Gorge' },
     { src: './images/12-sar-rappel-sandstone.jpg', alt: 'Tommy Adams rappelling sandstone cliff with helmet', caption: 'Technical Rope Rescue' },
     { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood Rescue — Floyd County' },
@@ -45,6 +46,7 @@
     title={profile.title}
     location={profile.location}
     linkedin={profile.linkedin}
+    cvLink={profile.cvLink}
     photoSrc={profile.photoSrc}
     photoAlt={profile.photoAlt}
   />
@@ -59,7 +61,7 @@
 
   <div class="photo-mosaic">
     {#each photos as photo}
-      <div class="photo-cell {photo.featured ? 'photo-cell-featured' : ''}">
+      <div class="photo-cell">
         <img src={photo.src} alt={photo.alt} />
         <div class="photo-caption">{photo.caption}</div>
       </div>
@@ -161,10 +163,6 @@
 
     <ResumeSection icon="🏃" title="Personal Excellence & Global Perspective">
       <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.{#if strava} <a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
-      <div class="sunset-photo">
-        <img src="./images/08-ridge-run-sunset.jpg" alt="Tommy Adams looking off into the distance at sunset on a Kentucky ridge" />
-        <div class="sunset-caption">One of 2,500+ consecutive days — looking out over Kentucky</div>
-      </div>
       <p><strong>Globally-Minded Traveler:</strong> Visited 30+ countries across six continents including Italy, UK, Germany, France, China, Japan, Thailand, Australia, Brazil, New Zealand, and many others. Studied abroad in Florence, Italy (Pepperdine University International Programs) and taught in Shanghai, China as Visiting Professor.</p>
     </ResumeSection>
 
@@ -185,7 +183,7 @@
   </div>
 
   <div class="footer-photo">
-    <img src="./images/tommy-trail-running.jpg" alt="Tommy Adams trail running on a mountain ridge" />
+    <img src="./images/08-ridge-run-sunset.jpg" alt="Tommy Adams looking off into the distance at sunset on a Kentucky ridge" />
   </div>
 </div>
 
@@ -224,9 +222,9 @@
 
   .footer-photo img {
     width: 100%;
-    height: 280px;
+    height: 300px;
     object-fit: cover;
-    object-position: center 40%;
+    object-position: center 55%;
     display: block;
   }
 
@@ -238,11 +236,11 @@
     .footer-photo img { height: 140px; }
   }
 
-  /* Photo mosaic — 4 photos: featured left spans 3 rows, 3 others stacked right */
+  /* Photo mosaic — 4 photos in clean 2×2 grid */
   .photo-mosaic {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: repeat(3, 150px);
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 220px 220px;
     gap: 3px;
     background: #1e3a2f;
   }
@@ -252,10 +250,6 @@
     background: #e8e2d8;
     position: relative;
     cursor: default;
-  }
-
-  .photo-cell-featured {
-    grid-row: span 3;
   }
 
   .photo-cell img {
@@ -289,6 +283,10 @@
   .photo-cell:hover .photo-caption {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  @media (hover: none) {
+    .photo-caption { opacity: 1; transform: none; }
   }
 
   .content {
@@ -333,60 +331,22 @@
     letter-spacing: 0.3px;
   }
 
-  /* Sunset photo after Strava link */
-  .sunset-photo {
-    margin: 16px 0 20px;
-    border-radius: 4px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .sunset-photo img {
-    width: 100%;
-    height: 240px;
-    object-fit: cover;
-    object-position: center 50%;
-    display: block;
-  }
-
-  .sunset-caption {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.6));
-    color: white;
-    padding: 28px 18px 12px;
-    font-size: 0.85em;
-    font-style: italic;
-    letter-spacing: 0.3px;
-  }
 
   @media (max-width: 768px) {
     .content { padding: 25px 18px; }
     .profile { padding: 25px 18px; }
     .sar-banner img { height: 160px; }
     .classroom-banner img { height: 160px; }
-    .sunset-photo img { height: 180px; }
     .teaching-grid { grid-template-columns: repeat(2, 1fr); }
-    .photo-mosaic {
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: 155px 155px;
-    }
-    .photo-cell-featured { grid-row: span 1; }
-    .photo-caption { opacity: 1; transform: none; }
+    .photo-mosaic { grid-template-rows: 160px 160px; }
   }
 
   @media (max-width: 400px) {
     .content { padding: 20px 15px; }
     .profile { padding: 20px 15px; }
-    .photo-mosaic {
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: repeat(2, 130px);
-    }
+    .photo-mosaic { grid-template-rows: 130px 130px; }
     .sar-banner img { height: 140px; }
     .classroom-banner img { height: 140px; }
-    .sunset-photo img { height: 160px; }
   }
 
   /* Work experience */
