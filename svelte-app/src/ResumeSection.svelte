@@ -18,9 +18,18 @@
     {#if icon}
       <span class="section-icon">{icon}</span>
     {/if}
-    <h3 class="section-title">{title}</h3>
+    <div class="section-title-wrap">
+      <h3 class="section-title">{title}</h3>
+      {#if collapsible}
+        <span class="expand-hint">{open ? 'tap to collapse' : 'tap to expand'}</span>
+      {/if}
+    </div>
     {#if collapsible}
-      <span class="toggle-indicator" class:open>{open ? '−' : '+'}</span>
+      <span class="toggle-indicator" class:open>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </span>
     {/if}
   </div>
 
@@ -76,6 +85,16 @@
     cursor: pointer;
     user-select: none;
     margin-bottom: 0;
+    background: #f5f2ec;
+    border-radius: 4px 4px 0 0;
+    padding: 10px 14px;
+    margin-left: -14px;
+    margin-right: -14px;
+    border-bottom: 2px solid #4a7c6b;
+  }
+
+  .section-header.clickable:hover {
+    background: #ede8e0;
   }
 
   .section-header.clickable:hover .section-title {
@@ -87,6 +106,13 @@
     margin-right: 12px;
   }
 
+  .section-title-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
   .section-title {
     font-size: 1.4em;
     font-weight: 700;
@@ -94,17 +120,29 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     margin: 0;
-    flex: 1;
+  }
+
+  .expand-hint {
+    font-size: 0.72em;
+    font-weight: 400;
+    color: #4a7c6b;
+    text-transform: none;
+    letter-spacing: 0.3px;
+    font-style: italic;
   }
 
   .toggle-indicator {
-    font-size: 1.4em;
-    font-weight: 300;
     color: #4a7c6b;
     width: 28px;
-    text-align: center;
-    line-height: 1;
-    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+  }
+
+  .toggle-indicator.open {
+    transform: rotate(180deg);
   }
 
   .section-content {

@@ -9,6 +9,7 @@
     title: data.title,
     location: data.location,
     linkedin: data.linkedin || '',
+    cvLink: data.cvLink || '',
     photoSrc: './images/tommy-portrait.jpg',
     photoAlt: data.name,
     statement: data.statement
@@ -25,14 +26,14 @@
   const awards = data.awards || [];
   const workExperience = data.workExperience || [];
   const educationDegreesList = data.educationDegreesList || [];
+  const executiveEducation = data.executiveEducation || [];
   const teachingInstitutions = data.teachingInstitutions || [];
 
   const photos = [
-    { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'SAR Operations — Floyd County', featured: true },
+    { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'SAR Operations — Floyd County' },
     { src: './images/13-sar-highline-valley.jpg', alt: 'Tommy Adams smiling in helmet at highline over valley', caption: 'Highline Rigging — Red River Gorge' },
     { src: './images/12-sar-rappel-sandstone.jpg', alt: 'Tommy Adams rappelling sandstone cliff with helmet', caption: 'Technical Rope Rescue' },
     { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood Rescue — Floyd County' },
-    { src: './images/08-ridge-run-sunset.jpg', alt: 'Sunset ridge run overlooking Kentucky', caption: '2,500+ Consecutive Days Running' },
   ];
 
   function paragraphs(text) {
@@ -46,6 +47,7 @@
     title={profile.title}
     location={profile.location}
     linkedin={profile.linkedin}
+    cvLink={profile.cvLink}
     photoSrc={profile.photoSrc}
     photoAlt={profile.photoAlt}
   />
@@ -60,7 +62,7 @@
 
   <div class="photo-mosaic">
     {#each photos as photo}
-      <div class="photo-cell {photo.featured ? 'photo-cell-featured' : ''}">
+      <div class="photo-cell">
         <img src={photo.src} alt={photo.alt} />
         <div class="photo-caption">{photo.caption}</div>
       </div>
@@ -92,6 +94,24 @@
         <div class="teaching-grid">
           {#each teachingInstitutions as inst}
             <div class="teaching-card">{inst}</div>
+          {/each}
+        </div>
+      {/if}
+      {#if executiveEducation.length > 0}
+        <div class="degrees-label">Recent &amp; Upcoming Training, Certification &amp; Continuing Education</div>
+        <div class="exec-ed-list">
+          {#each executiveEducation as ed}
+            <div class="exec-ed-card" class:upcoming={ed.status === 'upcoming'}>
+              <div class="exec-ed-top">
+                <span class="exec-ed-program">{ed.program}</span>
+                {#if ed.status === 'upcoming'}
+                  <span class="exec-ed-badge upcoming-badge">Upcoming</span>
+                {:else}
+                  <span class="exec-ed-year">{ed.year}</span>
+                {/if}
+              </div>
+              <div class="exec-ed-inst">{ed.institution}{ed.status === 'upcoming' ? ` — ${ed.year}` : ''}</div>
+            </div>
           {/each}
         </div>
       {/if}
@@ -161,15 +181,7 @@
     {/if}
 
     <ResumeSection icon="🏃" title="Personal Excellence & Global Perspective">
-      <div class="trail-photo-banner">
-        <img src="./images/tommy-trail-running.jpg" alt="Tommy Adams trail running on a mountain ridge" />
-        <div class="trail-photo-caption">Running the ridgeline — one of 2,500+ consecutive days and counting</div>
-      </div>
       <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.{#if strava} <a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
-      <div class="sunset-photo">
-        <img src="./images/08-ridge-run-sunset.jpg" alt="Tommy Adams looking off into the distance at sunset on a Kentucky ridge" />
-        <div class="sunset-caption">One of 2,500+ consecutive days — looking out over Kentucky</div>
-      </div>
       <p><strong>Globally-Minded Traveler:</strong> Visited 30+ countries across six continents including Italy, UK, Germany, France, China, Japan, Thailand, Australia, Brazil, New Zealand, and many others. Studied abroad in Florence, Italy (Pepperdine University International Programs) and taught in Shanghai, China as Visiting Professor.</p>
     </ResumeSection>
 
@@ -187,6 +199,10 @@
     <ResumeSection icon="🏢" title="Professional Affiliations" orgs={affiliations} collapsible={true}>
     </ResumeSection>
 
+  </div>
+
+  <div class="footer-photo">
+    <img src="./images/08-ridge-run-sunset.jpg" alt="Tommy Adams looking off into the distance at sunset on a Kentucky ridge" />
   </div>
 </div>
 
@@ -218,11 +234,32 @@
     margin-bottom: 0;
   }
 
-  /* Photo mosaic */
+  /* Footer panoramic photo */
+  .footer-photo {
+    overflow: hidden;
+  }
+
+  .footer-photo img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    object-position: center 55%;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .footer-photo img { height: 180px; }
+  }
+
+  @media (max-width: 400px) {
+    .footer-photo img { height: 140px; }
+  }
+
+  /* Photo mosaic — 4 photos in clean 2×2 grid */
   .photo-mosaic {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    grid-template-rows: 200px 200px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 220px 220px;
     gap: 3px;
     background: #1e3a2f;
   }
@@ -232,10 +269,6 @@
     background: #e8e2d8;
     position: relative;
     cursor: default;
-  }
-
-  .photo-cell-featured {
-    grid-row: span 2;
   }
 
   .photo-cell img {
@@ -269,6 +302,10 @@
   .photo-cell:hover .photo-caption {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  @media (hover: none) {
+    .photo-caption { opacity: 1; transform: none; }
   }
 
   .content {
@@ -313,91 +350,22 @@
     letter-spacing: 0.3px;
   }
 
-  /* Trail running banner */
-  .trail-photo-banner {
-    margin-bottom: 20px;
-    border-radius: 4px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .trail-photo-banner img {
-    width: 100%;
-    height: 240px;
-    object-fit: cover;
-    object-position: center 40%;
-    display: block;
-  }
-
-  .trail-photo-caption {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.6));
-    color: white;
-    padding: 28px 18px 12px;
-    font-size: 0.85em;
-    font-style: italic;
-    letter-spacing: 0.3px;
-  }
-
-  /* Sunset photo after Strava link */
-  .sunset-photo {
-    margin: 16px 0 20px;
-    border-radius: 4px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .sunset-photo img {
-    width: 100%;
-    height: 240px;
-    object-fit: cover;
-    object-position: center 50%;
-    display: block;
-  }
-
-  .sunset-caption {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.6));
-    color: white;
-    padding: 28px 18px 12px;
-    font-size: 0.85em;
-    font-style: italic;
-    letter-spacing: 0.3px;
-  }
 
   @media (max-width: 768px) {
     .content { padding: 25px 18px; }
     .profile { padding: 25px 18px; }
-    .trail-photo-banner img { height: 150px; }
     .sar-banner img { height: 160px; }
     .classroom-banner img { height: 160px; }
-    .sunset-photo img { height: 180px; }
     .teaching-grid { grid-template-columns: repeat(2, 1fr); }
-    .photo-mosaic {
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: 155px 155px 155px;
-    }
-    .photo-cell-featured { grid-row: span 1; }
-    .photo-caption { opacity: 1; transform: none; }
+    .photo-mosaic { grid-template-rows: 160px 160px; }
   }
 
   @media (max-width: 400px) {
     .content { padding: 20px 15px; }
     .profile { padding: 20px 15px; }
-    .photo-mosaic {
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: repeat(3, 130px);
-    }
-    .trail-photo-banner img { height: 130px; }
+    .photo-mosaic { grid-template-rows: 130px 130px; }
     .sar-banner img { height: 140px; }
     .classroom-banner img { height: 140px; }
-    .sunset-photo img { height: 160px; }
   }
 
   /* Work experience */
@@ -571,7 +539,76 @@
     text-transform: uppercase;
     letter-spacing: 1.2px;
     color: #4a7c6b;
+    margin-top: 24px;
     margin-bottom: 10px;
+  }
+
+  /* Executive Education */
+  .exec-ed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .exec-ed-card {
+    background: #f0f6f3;
+    border-left: 3px solid #4a7c6b;
+    padding: 12px 16px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .exec-ed-card.upcoming {
+    background: #fdf8ee;
+    border-left-color: #c8a45c;
+  }
+
+  .exec-ed-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .exec-ed-program {
+    font-weight: 700;
+    color: #1e3a2f;
+    font-size: 0.95em;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .exec-ed-year {
+    font-size: 0.82em;
+    color: #7a8a84;
+    white-space: nowrap;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .upcoming-badge {
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #8a6a1a;
+    background: #fdf5dc;
+    border: 1px solid #e8d898;
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .exec-ed-inst {
+    font-size: 0.85em;
+    color: #4a7c6b;
+    font-weight: 500;
+  }
+
+  .exec-ed-card.upcoming .exec-ed-inst {
+    color: #8a6a1a;
   }
 
   .strava-link {
