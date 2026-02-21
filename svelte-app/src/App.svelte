@@ -98,7 +98,7 @@
         </div>
       {/if}
       {#if executiveEducation.length > 0}
-        <div class="degrees-label">Executive Education</div>
+        <div class="degrees-label">Recent &amp; Upcoming Training, Certification &amp; Continuing Education</div>
         <div class="exec-ed-list">
           {#each executiveEducation as ed}
             <div class="exec-ed-card" class:upcoming={ed.status === 'upcoming'}>
