@@ -28,6 +28,7 @@
   const educationDegreesList = data.educationDegreesList || [];
   const executiveEducation = data.executiveEducation || [];
   const teachingInstitutions = data.teachingInstitutions || [];
+  const runningStartPhotos = data.runningStartPhotos || [];
 
   const photos = [
     { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'SAR Operations — Floyd County' },
@@ -79,6 +80,12 @@
       {#each paragraphs(data.emergencyContent) as para}
         <p>{para}</p>
       {/each}
+      {#if data.sarTeamPhoto}
+        <div class="group-photo-wrap">
+          <img class="group-photo-wide" src="./images/{data.sarTeamPhoto}" alt={data.sarTeamPhotoAlt || 'Wolfe County Search & Rescue team'} />
+          <div class="group-photo-caption">{data.sarTeamPhotoAlt || 'Wolfe County Search & Rescue team'}</div>
+        </div>
+      {/if}
     </ResumeSection>
 
     <ResumeSection icon="🎓" title="Teaching & Communication" highlights={educationHighlights}>
@@ -97,24 +104,6 @@
           {/each}
         </div>
       {/if}
-      {#if executiveEducation.length > 0}
-        <div class="degrees-label">Recent &amp; Upcoming Training, Certification &amp; Continuing Education</div>
-        <div class="exec-ed-list">
-          {#each executiveEducation as ed}
-            <div class="exec-ed-card" class:upcoming={ed.status === 'upcoming'}>
-              <div class="exec-ed-top">
-                <span class="exec-ed-program">{ed.program}</span>
-                {#if ed.status === 'upcoming'}
-                  <span class="exec-ed-badge upcoming-badge">Upcoming</span>
-                {:else}
-                  <span class="exec-ed-year">{ed.year}</span>
-                {/if}
-              </div>
-              <div class="exec-ed-inst">{ed.institution}{ed.status === 'upcoming' ? ` — ${ed.year}` : ''}</div>
-            </div>
-          {/each}
-        </div>
-      {/if}
       {#if educationDegreesList.length > 0}
         <div class="degrees-label">Academic Degrees</div>
         <div class="degrees">
@@ -128,6 +117,30 @@
         </div>
       {/if}
     </ResumeSection>
+
+    {#if executiveEducation.length > 0}
+    <ResumeSection icon="📋" title="Recent & Upcoming Training, Certification & Continuing Education">
+      <div class="exec-ed-list">
+        {#each executiveEducation as ed}
+          <div class="exec-ed-card" class:upcoming={ed.status === 'upcoming'}>
+            {#if ed.status === 'upcoming'}
+              <span class="exec-ed-badge upcoming-badge">Upcoming</span>
+            {/if}
+            <div class="exec-ed-top">
+              <span class="exec-ed-program">{ed.program}</span>
+              {#if ed.status !== 'upcoming'}
+                <span class="exec-ed-year">{ed.year}</span>
+              {/if}
+            </div>
+            <div class="exec-ed-inst">{ed.institution}{ed.status === 'upcoming' ? ` — ${ed.year}` : ''}</div>
+            {#if ed.photo}
+              <img class="exec-ed-photo" src="./images/{ed.photo}" alt={ed.photoAlt || ed.program} />
+            {/if}
+          </div>
+        {/each}
+      </div>
+    </ResumeSection>
+    {/if}
 
     <ResumeSection icon="🤝" title="Nonprofit & Public Service Leadership" highlights={publicServiceHighlights}>
       {#each paragraphs(data.publicServiceContent) as para}
@@ -188,6 +201,18 @@
     <ResumeSection icon="🌱" title="Community Service & Volunteer Work">
       <p>Active volunteer and mentor with <strong>A Running Start</strong> (2021–Present), a nonprofit supporting young runners. Founder of campus run clubs at multiple institutions. Advisor to student organizations, judge for business pitch competitions, and extensive committee service across academic and community organizations.</p>
       <p>Member of Wolfe County Search & Rescue since 2021 — contributing not only as a field responder but as an officer, treasurer, and finance officer supporting the organizational health of the team.</p>
+      {#if runningStartPhotos.length > 0}
+        <div class="running-photo-grid">
+          {#each runningStartPhotos as photo}
+            <div class="running-photo-item">
+              <img src="./images/{photo.file}" alt={photo.alt || 'Running Start group'} />
+              {#if photo.caption}
+                <div class="running-photo-caption">{photo.caption}</div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      {/if}
     </ResumeSection>
 
     <ResumeSection icon="⚡" title="Core Competencies & Certifications" skills={coreSkills} collapsible={true}>
@@ -609,6 +634,59 @@
 
   .exec-ed-card.upcoming .exec-ed-inst {
     color: #8a6a1a;
+  }
+
+  .exec-ed-photo {
+    width: 100%;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-top: 12px;
+  }
+
+  /* Group / team photos */
+  .group-photo-wrap {
+    margin-top: 20px;
+  }
+
+  .group-photo-wide {
+    width: 100%;
+    max-height: 340px;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+  }
+
+  .group-photo-caption {
+    font-size: 0.8em;
+    color: #6b7c74;
+    text-align: center;
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* Running Start photo grid */
+  .running-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .running-photo-item img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+  }
+
+  .running-photo-caption {
+    font-size: 0.78em;
+    color: #6b7c74;
+    text-align: center;
+    margin-top: 5px;
+    font-style: italic;
   }
 
   .strava-link {
