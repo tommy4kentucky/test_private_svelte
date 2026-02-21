@@ -103,7 +103,7 @@
   }
 
   h1 {
-    font-size: clamp(0.9rem, 4.5vw, 2.6em);
+    font-size: clamp(0.9rem, 4.5vw, 2.1em);
     font-weight: 700;
     letter-spacing: 0.5px;
     margin: 0 0 10px;

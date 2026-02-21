@@ -103,21 +103,23 @@
       {#each paragraphs(data.emergencyContent) as para}
         <p>{para}</p>
       {/each}
-      {#if data.sarTeamPhoto}
-        <div class="group-photo-wrap">
-          <img class="group-photo-wide" src="./images/{data.sarTeamPhoto}" alt={data.sarTeamPhotoAlt || 'Floyd County flood rescue team'} />
-          <div class="group-photo-caption">{data.sarTeamPhotoAlt || 'Floyd County flood rescue team'}</div>
+      <div class="thumb-row">
+        {#if data.sarTeamPhoto}
+          <div class="thumb-cell" on:click={() => openLightbox('./images/' + data.sarTeamPhoto, data.sarTeamPhotoAlt || 'WCSAR Water Rescue')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/' + data.sarTeamPhoto, data.sarTeamPhotoAlt || 'WCSAR Water Rescue')}>
+            <img src="./images/{data.sarTeamPhoto}" alt={data.sarTeamPhotoAlt || 'WCSAR Water Rescue'} style="object-position: center 30%" />
+            <div class="thumb-caption">{data.sarTeamPhotoAlt || 'WCSAR Water Rescue'}</div>
+          </div>
+        {/if}
+        {#if data.wolfeCountySarPhoto}
+          <div class="thumb-cell" on:click={() => openLightbox('./images/' + data.wolfeCountySarPhoto, data.wolfeCountySarPhotoAlt || 'Wolfe County SAR')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/' + data.wolfeCountySarPhoto, data.wolfeCountySarPhotoAlt || 'Wolfe County SAR')}>
+            <img src="./images/{data.wolfeCountySarPhoto}" alt={data.wolfeCountySarPhotoAlt || 'Wolfe County SAR'} />
+            <div class="thumb-caption">{data.wolfeCountySarPhotoAlt || 'Wolfe County SAR'}</div>
+          </div>
+        {/if}
+        <div class="thumb-cell" on:click={() => openLightbox('./images/12-sar-rappel-sandstone.jpg', 'Tommy Adams rappelling sandstone cliff')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/12-sar-rappel-sandstone.jpg', 'Tommy Adams rappelling sandstone cliff')}>
+          <img src="./images/12-sar-rappel-sandstone.jpg" alt="Tommy Adams rappelling sandstone cliff" />
+          <div class="thumb-caption">Technical Rope Rescue</div>
         </div>
-      {/if}
-      {#if data.wolfeCountySarPhoto}
-        <div class="group-photo-wrap">
-          <img class="group-photo-wide" src="./images/{data.wolfeCountySarPhoto}" alt={data.wolfeCountySarPhotoAlt || 'Wolfe County Search & Rescue team'} />
-          <div class="group-photo-caption">{data.wolfeCountySarPhotoAlt || 'Wolfe County Search & Rescue team'}</div>
-        </div>
-      {/if}
-      <div class="group-photo-wrap">
-        <img class="group-photo-wide" src="./images/12-sar-rappel-sandstone.jpg" alt="Tommy Adams rappelling sandstone cliff with helmet" />
-        <div class="group-photo-caption">Technical Rope Rescue</div>
       </div>
     </ResumeSection>
 
@@ -248,10 +250,11 @@
       <p>Member of Wolfe County Search & Rescue since 2021 — contributing not only as a field responder but as an officer, treasurer, and finance officer supporting the organizational health of the team.</p>
       {#if runningStartPhotos.length > 0}
         <div class="running-start-label">A Running Start</div>
-        <div class="running-photo-grid">
+        <div class="thumb-row">
           {#each runningStartPhotos as photo}
-            <div class="running-photo-item">
-              <img src="./images/{encodeURIComponent(photo.file)}" alt={photo.alt || 'Running Start group'} />
+            <div class="thumb-cell" on:click={() => openLightbox('./images/' + encodeURIComponent(photo.file), photo.alt || 'A Running Start')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/' + encodeURIComponent(photo.file), photo.alt || 'A Running Start')}>
+              <img src="./images/{encodeURIComponent(photo.file)}" alt={photo.alt || 'A Running Start'} />
+              {#if photo.caption}<div class="thumb-caption">{photo.caption}</div>{/if}
             </div>
           {/each}
         </div>
@@ -543,9 +546,9 @@
 
   .classroom-banner img {
     width: 100%;
-    height: 260px;
+    height: 280px;
     object-fit: cover;
-    object-position: center 20%;
+    object-position: center 8%;
     display: block;
   }
 
@@ -671,31 +674,67 @@
 
   .exec-ed-photo {
     width: 100%;
-    max-height: 320px;
+    height: 280px;
     object-fit: cover;
+    object-position: center 10%;
     border-radius: 4px;
     margin-top: 12px;
   }
 
-  /* Group / team photos */
-  .group-photo-wrap {
+  /* Shared clickable thumbnail row (SAR + Running Start) */
+  .thumb-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
     margin-top: 20px;
   }
 
-  .group-photo-wide {
-    width: 100%;
-    max-height: 340px;
-    object-fit: cover;
+  .thumb-cell {
+    position: relative;
+    overflow: hidden;
     border-radius: 6px;
-    display: block;
+    cursor: zoom-in;
   }
 
-  .group-photo-caption {
-    font-size: 0.8em;
-    color: #6b7c74;
-    text-align: center;
-    margin-top: 6px;
+  .thumb-cell img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  .thumb-cell:hover img {
+    transform: scale(1.04);
+  }
+
+  .thumb-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.68));
+    color: white;
+    padding: 22px 10px 8px;
+    font-size: 0.74em;
     font-style: italic;
+    letter-spacing: 0.3px;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+
+  .thumb-cell:hover .thumb-caption {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (hover: none) {
+    .thumb-caption { opacity: 1; transform: none; }
+  }
+
+  @media (max-width: 500px) {
+    .thumb-row { grid-template-columns: 1fr; }
   }
 
   /* Full-width running photo banner */
@@ -736,21 +775,6 @@
     .running-banner-item img { height: 240px; }
   }
 
-  /* Running Start photo grid */
-  .running-photo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-    margin-top: 20px;
-  }
-
-  .running-photo-item img {
-    width: 100%;
-    aspect-ratio: 4/3;
-    object-fit: cover;
-    border-radius: 6px;
-    display: block;
-  }
 
   .strava-link {
     color: #fc4c02;
@@ -834,6 +858,7 @@
     .degree-card { flex-direction: column; gap: 4px; }
     .degree-label { min-width: unset; }
     .degree-inst { white-space: normal; }
+    .exec-ed-photo { height: auto; object-position: center center; }
   }
 
   @media print {
