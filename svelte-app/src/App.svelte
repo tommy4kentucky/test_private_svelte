@@ -32,11 +32,28 @@
   const runningPhotos = data.runningPhotos || [];
 
   const photos = [
-    { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'SAR Operations — Floyd County' },
+    { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'Wolfe County SAR' },
     { src: './images/13-sar-highline-valley.jpg', alt: 'Tommy Adams smiling in helmet at highline over valley', caption: 'Highline Rigging — Red River Gorge' },
     { src: './images/12-sar-rappel-sandstone.jpg', alt: 'Tommy Adams rappelling sandstone cliff with helmet', caption: 'Technical Rope Rescue' },
     { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood Rescue — Floyd County', objectPosition: 'center center' },
   ];
+
+  let lightboxSrc = '';
+  let lightboxAlt = '';
+
+  function openLightbox(src, alt) {
+    lightboxSrc = src;
+    lightboxAlt = alt;
+  }
+
+  function closeLightbox() {
+    lightboxSrc = '';
+    lightboxAlt = '';
+  }
+
+  function handleLightboxKey(e) {
+    if (e.key === 'Escape') closeLightbox();
+  }
 
   function paragraphs(text) {
     return text.split('\n\n');
@@ -64,12 +81,19 @@
 
   <div class="photo-mosaic">
     {#each photos as photo}
-      <div class="photo-cell">
+      <div class="photo-cell" on:click={() => openLightbox(photo.src, photo.alt)} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox(photo.src, photo.alt)}>
         <img src={photo.src} alt={photo.alt} style={photo.objectPosition ? `object-position: ${photo.objectPosition}` : ''} />
         <div class="photo-caption">{photo.caption}</div>
       </div>
     {/each}
   </div>
+
+  {#if lightboxSrc}
+    <div class="lightbox" on:click={closeLightbox} on:keydown={handleLightboxKey} role="dialog" aria-modal="true" tabindex="-1">
+      <button class="lightbox-close" on:click={closeLightbox} aria-label="Close">✕</button>
+      <img src={lightboxSrc} alt={lightboxAlt} on:click|stopPropagation />
+    </div>
+  {/if}
 
   <div class="content">
 
@@ -221,13 +245,11 @@
       <p>Active volunteer and mentor with <strong>A Running Start</strong> (2021–Present), a nonprofit supporting young runners. Founder of campus run clubs at multiple institutions. Advisor to student organizations, judge for business pitch competitions, and extensive committee service across academic and community organizations.</p>
       <p>Member of Wolfe County Search & Rescue since 2021 — contributing not only as a field responder but as an officer, treasurer, and finance officer supporting the organizational health of the team.</p>
       {#if runningStartPhotos.length > 0}
+        <div class="running-start-label">A Running Start</div>
         <div class="running-photo-grid">
           {#each runningStartPhotos as photo}
             <div class="running-photo-item">
               <img src="./images/{encodeURIComponent(photo.file)}" alt={photo.alt || 'Running Start group'} />
-              {#if photo.caption}
-                <div class="running-photo-caption">{photo.caption}</div>
-              {/if}
             </div>
           {/each}
         </div>
@@ -788,5 +810,61 @@
       max-width: 100%;
       border-radius: 0;
     }
+  }
+
+  /* Photo mosaic — clickable cursor */
+  .photo-cell {
+    cursor: zoom-in;
+  }
+
+  /* Lightbox */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    cursor: zoom-out;
+  }
+
+  .lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    cursor: default;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.8;
+    padding: 4px 8px;
+  }
+
+  .lightbox-close:hover {
+    opacity: 1;
+  }
+
+  /* Running Start group label */
+  .running-start-label {
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #4a7c6b;
+    margin-top: 20px;
+    margin-bottom: 10px;
   }
 </style>
