@@ -34,7 +34,7 @@
     { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'SAR Operations — Floyd County' },
     { src: './images/13-sar-highline-valley.jpg', alt: 'Tommy Adams smiling in helmet at highline over valley', caption: 'Highline Rigging — Red River Gorge' },
     { src: './images/12-sar-rappel-sandstone.jpg', alt: 'Tommy Adams rappelling sandstone cliff with helmet', caption: 'Technical Rope Rescue' },
-    { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood Rescue — Floyd County' },
+    { src: './images/01-flood-rescue-team.jpg', alt: 'Floyd County flood rescue team training', caption: 'Flood Rescue — Floyd County', objectPosition: 'center center' },
   ];
 
   function paragraphs(text) {
@@ -64,7 +64,7 @@
   <div class="photo-mosaic">
     {#each photos as photo}
       <div class="photo-cell">
-        <img src={photo.src} alt={photo.alt} />
+        <img src={photo.src} alt={photo.alt} style={photo.objectPosition ? `object-position: ${photo.objectPosition}` : ''} />
         <div class="photo-caption">{photo.caption}</div>
       </div>
     {/each}
@@ -266,18 +266,8 @@
 
   .footer-photo img {
     width: 100%;
-    height: 300px;
-    object-fit: cover;
-    object-position: center 55%;
+    height: auto;
     display: block;
-  }
-
-  @media (max-width: 768px) {
-    .footer-photo img { height: 180px; }
-  }
-
-  @media (max-width: 400px) {
-    .footer-photo img { height: 140px; }
   }
 
   /* Photo mosaic — 4 photos in clean 2×2 grid */
