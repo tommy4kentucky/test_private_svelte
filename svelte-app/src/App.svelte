@@ -40,8 +40,6 @@
   const photos = [
     { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'Wolfe County SAR' },
     { src: './images/13-sar-highline-valley.jpg', alt: 'Tommy Adams smiling in helmet at highline over valley', caption: 'Highline Rigging — Red River Gorge' },
-    { src: './images/01-flood-rescue-team.jpg', alt: 'WCSAR flood rescue team operation', caption: 'Flood Rescue — Wolfe County SAR' },
-    { src: './images/14-sar-team-rock-climb.jpg', alt: 'SAR team technical rope rescue rock climb', caption: 'Technical Rope Rescue Training' },
   ];
 
   let lightboxSrc = '';
@@ -332,11 +330,11 @@
     transform: scale(1.02);
   }
 
-  /* Photo mosaic — 2×2 grid */
+  /* Photo mosaic — 2 photos side by side */
   .photo-mosaic {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 300px 300px;
+    grid-template-rows: 480px;
     gap: 3px;
     background: #1e3a2f;
   }
@@ -437,18 +435,18 @@
   @media (max-width: 768px) {
     .content { padding: 25px 18px; }
     .profile { padding: 25px 18px; }
-    .sar-banner img { height: 200px; }
-    .classroom-banner img { height: 200px; }
+    .sar-banner img { height: 220px; }
+    .classroom-banner img { height: 280px; }
     .teaching-grid { grid-template-columns: repeat(2, 1fr); }
-    .photo-mosaic { grid-template-rows: 200px 200px; }
+    .photo-mosaic { grid-template-rows: 320px; }
   }
 
   @media (max-width: 400px) {
     .content { padding: 20px 15px; }
     .profile { padding: 20px 15px; }
-    .photo-mosaic { grid-template-rows: 160px 160px; }
-    .sar-banner img { height: 160px; }
-    .classroom-banner img { height: 160px; }
+    .photo-mosaic { grid-template-rows: 240px; }
+    .sar-banner img { height: 180px; }
+    .classroom-banner img { height: 220px; }
   }
 
   /* Work experience */
@@ -569,7 +567,7 @@
 
   .classroom-banner img {
     width: 100%;
-    height: 300px;
+    height: 420px;
     object-fit: cover;
     object-position: center 8%;
     display: block;
