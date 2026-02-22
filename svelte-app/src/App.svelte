@@ -86,7 +86,7 @@
   <div class="photo-mosaic">
     {#each photos as photo}
       <div class="photo-cell" on:click={() => openLightbox(photo.src, photo.alt)} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox(photo.src, photo.alt)}>
-        <img src={photo.src} alt={photo.alt} style={photo.objectPosition ? `object-position: ${photo.objectPosition}` : ''} />
+        <img src={photo.src} alt={photo.alt} loading="lazy" style={photo.objectPosition ? `object-position: ${photo.objectPosition}` : ''} />
         <div class="photo-caption">{photo.caption}</div>
       </div>
     {/each}
@@ -103,7 +103,7 @@
 
     <ResumeSection icon="🚨" title="Emergency Management / Search & Rescue" highlights={emergencyHighlights}>
       <div class="sar-banner" on:click={() => openLightbox('./images/07-sar-cliff-edge-fog.jpg', 'Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/07-sar-cliff-edge-fog.jpg', 'Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation')}>
-        <img src="./images/07-sar-cliff-edge-fog.jpg" alt="Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation" />
+        <img src="./images/07-sar-cliff-edge-fog.jpg" alt="Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation" loading="lazy" />
         <div class="sar-banner-caption">Cliff rescue operations — Red River Gorge area</div>
       </div>
       {#each paragraphs(data.emergencyContent) as para}
@@ -112,18 +112,18 @@
       <div class="thumb-row">
         {#if data.sarTeamPhoto}
           <div class="thumb-cell" on:click={() => openLightbox('./images/' + data.sarTeamPhoto, data.sarTeamPhotoAlt || 'WCSAR Water Rescue')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/' + data.sarTeamPhoto, data.sarTeamPhotoAlt || 'WCSAR Water Rescue')}>
-            <img src="./images/{data.sarTeamPhoto}" alt={data.sarTeamPhotoAlt || 'WCSAR Water Rescue'} style="object-position: center 30%" />
+            <img src="./images/{data.sarTeamPhoto}" alt={data.sarTeamPhotoAlt || 'WCSAR Water Rescue'} loading="lazy" style="object-position: center 30%" />
             <div class="thumb-caption">{data.sarTeamPhotoAlt || 'WCSAR Water Rescue'}</div>
           </div>
         {/if}
         {#if data.wolfeCountySarPhoto}
           <div class="thumb-cell" on:click={() => openLightbox('./images/' + data.wolfeCountySarPhoto, data.wolfeCountySarPhotoAlt || 'Wolfe County SAR')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/' + data.wolfeCountySarPhoto, data.wolfeCountySarPhotoAlt || 'Wolfe County SAR')}>
-            <img src="./images/{data.wolfeCountySarPhoto}" alt={data.wolfeCountySarPhotoAlt || 'Wolfe County SAR'} />
+            <img src="./images/{data.wolfeCountySarPhoto}" alt={data.wolfeCountySarPhotoAlt || 'Wolfe County SAR'} loading="lazy" />
             <div class="thumb-caption">{data.wolfeCountySarPhotoAlt || 'Wolfe County SAR'}</div>
           </div>
         {/if}
         <div class="thumb-cell" on:click={() => openLightbox('./images/12-sar-rappel-sandstone.jpg', 'Tommy Adams rappelling sandstone cliff')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/12-sar-rappel-sandstone.jpg', 'Tommy Adams rappelling sandstone cliff')}>
-          <img src="./images/12-sar-rappel-sandstone.jpg" alt="Tommy Adams rappelling sandstone cliff" />
+          <img src="./images/12-sar-rappel-sandstone.jpg" alt="Tommy Adams rappelling sandstone cliff" loading="lazy" />
           <div class="thumb-caption">Technical Rope Rescue</div>
         </div>
       </div>
@@ -131,7 +131,7 @@
 
     <ResumeSection icon="🎓" title="Teaching & Communication" highlights={educationHighlights}>
       <div class="classroom-banner" on:click={() => openLightbox('./images/10-classroom-professor.png', 'Tommy Adams in the classroom')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/10-classroom-professor.png', 'Tommy Adams in the classroom')}>
-        <img src="./images/10-classroom-professor.png" alt="Tommy Adams in the classroom" />
+        <img src="./images/10-classroom-professor.png" alt="Tommy Adams in the classroom" loading="lazy" />
         <div class="classroom-banner-caption">17+ years shaping communicators — across 10+ universities</div>
       </div>
       {#each paragraphs(data.educationContent) as para}
@@ -176,7 +176,7 @@
             <div class="exec-ed-inst">{ed.institution}{ed.status === 'upcoming' ? ` — ${ed.year}` : ''}</div>
             {#if ed.photo}
               <div class="exec-ed-photo-wrap" on:click={() => openLightbox('./images/' + ed.photo, ed.photoAlt || ed.program)} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/' + ed.photo, ed.photoAlt || ed.program)}>
-                <img class="exec-ed-photo" src="./images/{ed.photo}" alt={ed.photoAlt || ed.program} />
+                <img class="exec-ed-photo" src="./images/{ed.photo}" alt={ed.photoAlt || ed.program} loading="lazy" />
               </div>
             {/if}
           </div>
@@ -237,13 +237,13 @@
     {/if}
 
     <ResumeSection icon="🏃" title="Personal Excellence & Global Perspective">
-      <p><strong>Running Every Single Day Since October 2018:</strong> <span class="streak-count">{dayStreak.toLocaleString()}</span> consecutive days without missing a single one. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.{#if strava} <a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
+      <p><strong>Running Every Single Day Since October 2018:</strong> <span class="streak-count">{dayStreak.toLocaleString()}</span> consecutive days without missing a single one. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work. {#if strava}<a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
       <p><strong>Globally-Minded Traveler:</strong> Visited 30+ countries across six continents including Italy, UK, Germany, France, China, Japan, Thailand, Australia, Brazil, New Zealand, and many others. Studied abroad in Florence, Italy (Pepperdine University International Programs) and taught in Shanghai, China as Visiting Professor.</p>
       {#if runningPhotos.length > 0}
         <div class="running-banner-list">
           {#each runningPhotos as photo}
             <div class="running-banner-item" on:click={() => openLightbox('./images/' + encodeURIComponent(photo.file), photo.alt)} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/' + encodeURIComponent(photo.file), photo.alt)}>
-              <img src="./images/{encodeURIComponent(photo.file)}" alt={photo.alt} />
+              <img src="./images/{encodeURIComponent(photo.file)}" alt={photo.alt} loading="lazy" />
               {#if photo.caption}
                 <div class="running-banner-caption">{photo.caption}</div>
               {/if}
@@ -261,7 +261,7 @@
         <div class="thumb-row">
           {#each runningStartPhotos as photo}
             <div class="thumb-cell" on:click={() => openLightbox('./images/' + encodeURIComponent(photo.file), photo.alt || 'A Running Start')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/' + encodeURIComponent(photo.file), photo.alt || 'A Running Start')}>
-              <img src="./images/{encodeURIComponent(photo.file)}" alt={photo.alt || 'A Running Start'} />
+              <img src="./images/{encodeURIComponent(photo.file)}" alt={photo.alt || 'A Running Start'} loading="lazy" />
               {#if photo.caption}<div class="thumb-caption">{photo.caption}</div>{/if}
             </div>
           {/each}
@@ -281,7 +281,7 @@
   </div>
 
   <div class="footer-photo" on:click={() => openLightbox('./images/08-ridge-run-sunset.jpg', 'Tommy Adams looking off into the distance at sunset on a Kentucky ridge')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/08-ridge-run-sunset.jpg', 'Tommy Adams looking off into the distance at sunset on a Kentucky ridge')}>
-    <img src="./images/08-ridge-run-sunset.jpg" alt="Tommy Adams looking off into the distance at sunset on a Kentucky ridge" />
+    <img src="./images/08-ridge-run-sunset.jpg" alt="Tommy Adams looking off into the distance at sunset on a Kentucky ridge" loading="lazy" />
   </div>
 </div>
 
@@ -334,7 +334,7 @@
   .photo-mosaic {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 360px;
+    grid-template-rows: 480px;
     gap: 3px;
     background: #1e3a2f;
   }
@@ -343,7 +343,7 @@
     overflow: hidden;
     background: #e8e2d8;
     position: relative;
-    cursor: default;
+    cursor: zoom-in;
   }
 
   .photo-cell img {
@@ -435,18 +435,18 @@
   @media (max-width: 768px) {
     .content { padding: 25px 18px; }
     .profile { padding: 25px 18px; }
-    .sar-banner img { height: 200px; }
-    .classroom-banner img { height: 200px; }
+    .sar-banner img { height: 220px; }
+    .classroom-banner img { height: 280px; }
     .teaching-grid { grid-template-columns: repeat(2, 1fr); }
-    .photo-mosaic { grid-template-rows: 240px; }
+    .photo-mosaic { grid-template-rows: 320px; }
   }
 
   @media (max-width: 400px) {
     .content { padding: 20px 15px; }
     .profile { padding: 20px 15px; }
-    .photo-mosaic { grid-template-rows: 180px; }
-    .sar-banner img { height: 160px; }
-    .classroom-banner img { height: 160px; }
+    .photo-mosaic { grid-template-rows: 240px; }
+    .sar-banner img { height: 180px; }
+    .classroom-banner img { height: 220px; }
   }
 
   /* Work experience */
@@ -567,7 +567,7 @@
 
   .classroom-banner img {
     width: 100%;
-    height: 300px;
+    height: 420px;
     object-fit: cover;
     object-position: center 8%;
     display: block;
@@ -711,9 +711,9 @@
 
   .exec-ed-photo {
     width: 100%;
-    height: 280px;
+    height: 380px;
     object-fit: cover;
-    object-position: center 10%;
+    object-position: center 30%;
     border-radius: 4px;
     margin-top: 0;
     display: block;
