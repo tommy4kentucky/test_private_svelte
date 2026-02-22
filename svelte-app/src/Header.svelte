@@ -17,7 +17,7 @@
       </div>
     {/if}
     <div class="header-text">
-      <div class="title">{title}</div>
+      <div class="title">{@html title}</div>
       <h1>{name}</h1>
       <div class="location">{location}</div>
       <div class="header-links">
