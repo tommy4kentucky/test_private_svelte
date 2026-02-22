@@ -31,8 +31,11 @@
   const runningStartPhotos = data.runningStartPhotos || [];
   const runningPhotos = data.runningPhotos || [];
 
-  const streakStart = new Date('2018-10-15');
-  const dayStreak = Math.floor((new Date() - streakStart) / (1000 * 60 * 60 * 24));
+  // Use local calendar dates (not UTC) so the count rolls over at local midnight
+  const streakStart = new Date(2018, 9, 15); // Oct 15, 2018 in local time (months are 0-indexed)
+  const _now = new Date();
+  const todayLocal = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate());
+  const dayStreak = Math.floor((todayLocal - streakStart) / (1000 * 60 * 60 * 24));
 
   const photos = [
     { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'Wolfe County SAR' },
