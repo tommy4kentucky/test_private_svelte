@@ -711,9 +711,9 @@
 
   .exec-ed-photo {
     width: 100%;
-    height: 280px;
+    height: 380px;
     object-fit: cover;
-    object-position: center center;
+    object-position: center 30%;
     border-radius: 4px;
     margin-top: 0;
     display: block;
