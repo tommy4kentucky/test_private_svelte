@@ -31,6 +31,12 @@
   const runningStartPhotos = data.runningStartPhotos || [];
   const runningPhotos = data.runningPhotos || [];
 
+  // Use local calendar dates (not UTC) so the count rolls over at local midnight
+  const streakStart = new Date(2018, 9, 15); // Oct 15, 2018 in local time (months are 0-indexed)
+  const _now = new Date();
+  const todayLocal = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate());
+  const dayStreak = Math.floor((todayLocal - streakStart) / (1000 * 60 * 60 * 24));
+
   const photos = [
     { src: './images/05-sar-portrait-orange-field.jpg', alt: 'Tommy Adams in orange SAR Arc\'teryx jacket', caption: 'Wolfe County SAR' },
     { src: './images/13-sar-highline-valley.jpg', alt: 'Tommy Adams smiling in helmet at highline over valley', caption: 'Highline Rigging — Red River Gorge' },
@@ -96,7 +102,7 @@
   <div class="content">
 
     <ResumeSection icon="🚨" title="Emergency Management / Search & Rescue" highlights={emergencyHighlights}>
-      <div class="sar-banner">
+      <div class="sar-banner" on:click={() => openLightbox('./images/07-sar-cliff-edge-fog.jpg', 'Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/07-sar-cliff-edge-fog.jpg', 'Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation')}>
         <img src="./images/07-sar-cliff-edge-fog.jpg" alt="Tommy Adams at cliff edge overlooking fog-filled valley during SAR operation" />
         <div class="sar-banner-caption">Cliff rescue operations — Red River Gorge area</div>
       </div>
@@ -124,7 +130,7 @@
     </ResumeSection>
 
     <ResumeSection icon="🎓" title="Teaching & Communication" highlights={educationHighlights}>
-      <div class="classroom-banner">
+      <div class="classroom-banner" on:click={() => openLightbox('./images/10-classroom-professor.png', 'Tommy Adams in the classroom')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/10-classroom-professor.png', 'Tommy Adams in the classroom')}>
         <img src="./images/10-classroom-professor.png" alt="Tommy Adams in the classroom" />
         <div class="classroom-banner-caption">17+ years shaping communicators — across 10+ universities</div>
       </div>
@@ -169,7 +175,9 @@
             </div>
             <div class="exec-ed-inst">{ed.institution}{ed.status === 'upcoming' ? ` — ${ed.year}` : ''}</div>
             {#if ed.photo}
-              <img class="exec-ed-photo" src="./images/{ed.photo}" alt={ed.photoAlt || ed.program} />
+              <div class="exec-ed-photo-wrap" on:click={() => openLightbox('./images/' + ed.photo, ed.photoAlt || ed.program)} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/' + ed.photo, ed.photoAlt || ed.program)}>
+                <img class="exec-ed-photo" src="./images/{ed.photo}" alt={ed.photoAlt || ed.program} />
+              </div>
             {/if}
           </div>
         {/each}
@@ -229,13 +237,13 @@
     {/if}
 
     <ResumeSection icon="🏃" title="Personal Excellence & Global Perspective">
-      <p><strong>Running Every Single Day Since October 2018:</strong> Over seven years without missing a day. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.{#if strava} <a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
+      <p><strong>Running Every Single Day Since October 2018:</strong> <span class="streak-count">{dayStreak.toLocaleString()}</span> consecutive days without missing a single one. This daily commitment reflects the discipline, resilience, and iterative refinement process I bring to every aspect of my life and work.{#if strava} <a class="strava-link" href={strava} target="_blank" rel="noopener noreferrer">Follow on Strava →</a>{/if}</p>
       <p><strong>Globally-Minded Traveler:</strong> Visited 30+ countries across six continents including Italy, UK, Germany, France, China, Japan, Thailand, Australia, Brazil, New Zealand, and many others. Studied abroad in Florence, Italy (Pepperdine University International Programs) and taught in Shanghai, China as Visiting Professor.</p>
       {#if runningPhotos.length > 0}
         <div class="running-banner-list">
           {#each runningPhotos as photo}
-            <div class="running-banner-item">
-              <img src="./images/{photo.file}" alt={photo.alt} />
+            <div class="running-banner-item" on:click={() => openLightbox('./images/' + encodeURIComponent(photo.file), photo.alt)} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/' + encodeURIComponent(photo.file), photo.alt)}>
+              <img src="./images/{encodeURIComponent(photo.file)}" alt={photo.alt} />
               {#if photo.caption}
                 <div class="running-banner-caption">{photo.caption}</div>
               {/if}
@@ -272,7 +280,7 @@
 
   </div>
 
-  <div class="footer-photo">
+  <div class="footer-photo" on:click={() => openLightbox('./images/08-ridge-run-sunset.jpg', 'Tommy Adams looking off into the distance at sunset on a Kentucky ridge')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/08-ridge-run-sunset.jpg', 'Tommy Adams looking off into the distance at sunset on a Kentucky ridge')}>
     <img src="./images/08-ridge-run-sunset.jpg" alt="Tommy Adams looking off into the distance at sunset on a Kentucky ridge" />
   </div>
 </div>
@@ -308,19 +316,25 @@
   /* Footer panoramic photo */
   .footer-photo {
     overflow: hidden;
+    cursor: zoom-in;
   }
 
   .footer-photo img {
     width: 100%;
     height: auto;
     display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .footer-photo:hover img {
+    transform: scale(1.02);
   }
 
   /* Photo mosaic — 2 photos side by side */
   .photo-mosaic {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 320px;
+    grid-template-rows: 360px;
     gap: 3px;
     background: #1e3a2f;
   }
@@ -388,14 +402,20 @@
     border-radius: 4px;
     overflow: hidden;
     position: relative;
+    cursor: zoom-in;
   }
 
   .sar-banner img {
     width: 100%;
-    height: 260px;
+    height: 300px;
     object-fit: cover;
     object-position: center 30%;
     display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .sar-banner:hover img {
+    transform: scale(1.02);
   }
 
   .sar-banner-caption {
@@ -415,18 +435,18 @@
   @media (max-width: 768px) {
     .content { padding: 25px 18px; }
     .profile { padding: 25px 18px; }
-    .sar-banner img { height: 160px; }
-    .classroom-banner img { height: 160px; }
+    .sar-banner img { height: 200px; }
+    .classroom-banner img { height: 200px; }
     .teaching-grid { grid-template-columns: repeat(2, 1fr); }
-    .photo-mosaic { grid-template-rows: 220px; }
+    .photo-mosaic { grid-template-rows: 240px; }
   }
 
   @media (max-width: 400px) {
     .content { padding: 20px 15px; }
     .profile { padding: 20px 15px; }
     .photo-mosaic { grid-template-rows: 180px; }
-    .sar-banner img { height: 140px; }
-    .classroom-banner img { height: 140px; }
+    .sar-banner img { height: 160px; }
+    .classroom-banner img { height: 160px; }
   }
 
   /* Work experience */
@@ -542,14 +562,20 @@
     border-radius: 4px;
     overflow: hidden;
     position: relative;
+    cursor: zoom-in;
   }
 
   .classroom-banner img {
     width: 100%;
-    height: 280px;
+    height: 300px;
     object-fit: cover;
     object-position: center 8%;
     display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .classroom-banner:hover img {
+    transform: scale(1.02);
   }
 
   .classroom-banner-caption {
@@ -672,13 +698,26 @@
     color: #8a6a1a;
   }
 
+  .exec-ed-photo-wrap {
+    cursor: zoom-in;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+
+  .exec-ed-photo-wrap:hover .exec-ed-photo {
+    transform: scale(1.02);
+  }
+
   .exec-ed-photo {
     width: 100%;
     height: 280px;
     object-fit: cover;
     object-position: center 10%;
     border-radius: 4px;
-    margin-top: 12px;
+    margin-top: 0;
+    display: block;
+    transition: transform 0.4s ease;
   }
 
   /* Shared clickable thumbnail row (SAR + Running Start) */
@@ -748,6 +787,7 @@
     border-radius: 6px;
     overflow: hidden;
     margin-bottom: 12px;
+    cursor: zoom-in;
   }
 
   .running-banner-item img {
@@ -756,6 +796,11 @@
     object-fit: cover;
     object-position: center 30%;
     display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .running-banner-item:hover img {
+    transform: scale(1.02);
   }
 
   .running-banner-caption {
@@ -775,6 +820,12 @@
     .running-banner-item img { height: 240px; }
   }
 
+
+  .streak-count {
+    font-size: 1.15em;
+    font-weight: 700;
+    color: #1e3a2f;
+  }
 
   .strava-link {
     color: #fc4c02;
