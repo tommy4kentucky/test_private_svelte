@@ -238,7 +238,7 @@
     </div>
     <p class="ud-welcome">WELCOME TO THE</p>
     <p class="ud-title">UPSIDE DOWN</p>
-    <p class="ud-sub">↓ ↓ ↓</p>
+    <p class="ud-sub">.... resume</p>
   </div>
 {/if}
 
@@ -247,12 +247,12 @@
   <button class="return-btn" on:click={deactivateEasterEgg} aria-label="Return to normal view">
     ← Right-Side Up
   </button>
+  <div class="lights-fixed" aria-hidden="true">
+    <ChristmasLights />
+  </div>
 {/if}
 
-<div class="container">
-  {#if easterEggMode}
-    <ChristmasLights />
-  {/if}
+<div class="container" class:ud-flipped={easterEggMode}>
   <Header
     name={profile.name}
     title={profile.title}
@@ -484,6 +484,20 @@
     box-shadow: 0 4px 24px rgba(0,0,0,0.12);
     border-radius: 6px;
     overflow: hidden;
+    transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ud-flipped {
+    transform: rotate(180deg);
+  }
+
+  .lights-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9980;
+    pointer-events: none;
   }
 
   .profile {
