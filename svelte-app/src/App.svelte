@@ -521,7 +521,6 @@
     .content { padding: 25px 18px; }
     .profile { padding: 25px 18px; }
     .sar-banner img { height: 220px; }
-    .classroom-banner img { height: auto; object-fit: contain; object-position: center top; }
     .teaching-grid { grid-template-columns: repeat(2, 1fr); }
     .photo-mosaic { grid-template-rows: 320px; }
   }
@@ -531,7 +530,6 @@
     .profile { padding: 20px 15px; }
     .photo-mosaic { grid-template-rows: 240px; }
     .sar-banner img { height: 180px; }
-    .classroom-banner img { height: auto; object-fit: contain; object-position: center top; }
   }
 
   /* Work experience */
@@ -674,6 +672,10 @@
     font-size: 0.85em;
     font-style: italic;
     letter-spacing: 0.3px;
+  }
+
+  @media (max-width: 768px) {
+    .classroom-banner img { height: auto; }
   }
 
   /* Teaching grid */
