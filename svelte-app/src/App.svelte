@@ -67,165 +67,45 @@
   // ── EASTER EGG ─────────────────────────────────────────
   let easterEggMode = false;
   let showActivationOverlay = false;
-  let audioCtx = null;
-  let melodyTimer = null;
-  let masterGain = null;
-  let reverbNode = null;
+  let bgAudio = null;
 
   // Toggle body class reactively
   $: if (typeof document !== 'undefined') {
     document.body.classList.toggle('upside-down', easterEggMode);
   }
 
-  // ── 80s analog synth engine — Stranger Things homage ──
-  // Two-layer architecture: pulsing bass arpeggio + haunting lead
-  // D minor, slow atmospheric tempo — total loop 4.50s
-
-  // Lead melody: ascending D-minor arpeggio that peaks, then descends
-  const LEAD = [
-    { f: 293.66, d: 0.30 }, // D4
-    { f: 349.23, d: 0.30 }, // F4
-    { f: 440.00, d: 0.30 }, // A4
-    { f: 587.33, d: 0.45 }, // D5  — peak
-    { f: 0,      d: 0.15 }, // rest
-    { f: 523.25, d: 0.30 }, // C5
-    { f: 466.16, d: 0.30 }, // Bb4
-    { f: 440.00, d: 0.45 }, // A4
-    { f: 0,      d: 0.15 }, // rest
-    { f: 392.00, d: 0.30 }, // G4
-    { f: 349.23, d: 0.30 }, // F4
-    { f: 329.63, d: 0.30 }, // E4
-    { f: 293.66, d: 0.60 }, // D4  — resolve
-    { f: 0,      d: 0.30 }, // rest
-  ]; // total: 4.50s
-
-  // Bass: D-minor arpeggio pulse (D2-F2-A2, cycling)
-  const BASS = [
-    { f: 73.42,  d: 0.30 }, // D2
-    { f: 87.31,  d: 0.30 }, // F2
-    { f: 110.00, d: 0.30 }, // A2
-    { f: 87.31,  d: 0.30 }, // F2
-    { f: 73.42,  d: 0.30 }, // D2
-    { f: 87.31,  d: 0.30 }, // F2
-    { f: 110.00, d: 0.30 }, // A2
-    { f: 87.31,  d: 0.30 }, // F2
-    { f: 73.42,  d: 0.30 }, // D2
-    { f: 87.31,  d: 0.30 }, // F2
-    { f: 110.00, d: 0.30 }, // A2
-    { f: 130.81, d: 0.30 }, // C3
-    { f: 146.83, d: 0.60 }, // D3  — resolve
-    { f: 0,      d: 0.30 }, // rest
-  ]; // total: 4.50s
-
-  function createReverb() {
-    const conv = audioCtx.createConvolver();
-    const sRate = audioCtx.sampleRate;
-    const len = Math.floor(sRate * 2.2);
-    const buf = audioCtx.createBuffer(2, len, sRate);
-    for (let c = 0; c < 2; c++) {
-      const ch = buf.getChannelData(c);
-      for (let i = 0; i < len; i++) {
-        ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.8);
-      }
-    }
-    conv.buffer = buf;
-    return conv;
-  }
-
-  // Play one layer: dual detuned sawtooth oscillators through a filter + ADSR
-  function playLayer(notes, startTime, filterHz, vol, detune) {
-    let t = startTime;
-    for (const step of notes) {
-      if (step.f > 0) {
-        const env = audioCtx.createGain();
-        const filt = audioCtx.createBiquadFilter();
-        filt.type = 'lowpass';
-        filt.frequency.value = filterHz;
-        filt.Q.value = 0.8;
-
-        // Two slightly detuned saws for analog warmth
-        for (const cents of [-detune, detune]) {
-          const osc = audioCtx.createOscillator();
-          osc.type = 'sawtooth';
-          osc.frequency.value = step.f;
-          osc.detune.value = cents;
-          osc.connect(filt);
-          osc.start(t);
-          osc.stop(t + step.d + 0.05);
-        }
-
-        // ADSR envelope
-        env.gain.setValueAtTime(0.0001, t);
-        env.gain.linearRampToValueAtTime(vol, t + 0.05);
-        env.gain.setValueAtTime(vol * 0.75, t + step.d * 0.5);
-        env.gain.exponentialRampToValueAtTime(0.0001, t + step.d + 0.04);
-
-        filt.connect(env);
-        env.connect(masterGain);
-        env.connect(reverbNode); // wet send
-      }
-      t += step.d;
-    }
-    return t;
-  }
-
-  function scheduleMelody() {
-    if (!audioCtx || !masterGain) return;
-    const t = audioCtx.currentTime + 0.05;
-    playLayer(LEAD, t, 2400, 0.10, 6);  // bright filtered lead
-    playLayer(BASS, t, 320,  0.16, 2);  // warm sub bass
-    const loopEnd = t + 4.50;
-    melodyTimer = setTimeout(scheduleMelody, (loopEnd - audioCtx.currentTime) * 1000 - 100);
-  }
-
-  function setupAudioGraph() {
-    masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0.85;
-    const comp = audioCtx.createDynamicsCompressor();
-    comp.threshold.value = -18;
-    comp.ratio.value = 4;
-    masterGain.connect(comp);
-    comp.connect(audioCtx.destination);
-
-    reverbNode = createReverb();
-    const wetGain = audioCtx.createGain();
-    wetGain.gain.value = 0.38;
-    reverbNode.connect(wetGain);
-    wetGain.connect(audioCtx.destination);
-  }
-
-  function startAudio() {
-    if (!audioCtx) return;
-    try {
-      setupAudioGraph();
-      // resume() required on iOS Safari even when context is new
-      audioCtx.resume().then(() => scheduleMelody()).catch(() => scheduleMelody());
-    } catch (e) { /* audio unavailable */ }
-  }
-
-  function stopAudio() {
-    if (melodyTimer) clearTimeout(melodyTimer);
-    melodyTimer = null;
-    if (audioCtx) { audioCtx.close(); audioCtx = null; }
-    masterGain = null;
-    reverbNode = null;
-  }
-
   function activateEasterEgg() {
     if (easterEggMode) return;
-    // iOS fix: AudioContext MUST be created synchronously inside the gesture handler.
-    // A setTimeout would sever the user-gesture chain and block audio on Safari/iOS.
+    // Audio must be created & played synchronously inside the gesture handler for iOS Safari
     try {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      bgAudio = new Audio('./audio/stranger-things.mp3');
+      bgAudio.loop = true;
+      bgAudio.volume = 0;
+      bgAudio.play().catch(() => {});
+      // Fade in over 2s
+      let vol = 0;
+      const fadeIn = setInterval(() => {
+        vol = Math.min(vol + 0.04, 0.85);
+        if (bgAudio) bgAudio.volume = vol;
+        if (vol >= 0.85) clearInterval(fadeIn);
+      }, 80);
     } catch (e) {}
     showActivationOverlay = true;
-    setTimeout(() => { easterEggMode = true; startAudio(); }, 600);
+    setTimeout(() => { easterEggMode = true; }, 600);
     setTimeout(() => { showActivationOverlay = false; }, 3200);
   }
 
   function deactivateEasterEgg() {
     easterEggMode = false;
-    stopAudio();
+    if (bgAudio) {
+      // Fade out then stop
+      const audio = bgAudio;
+      const fadeOut = setInterval(() => {
+        audio.volume = Math.max(audio.volume - 0.06, 0);
+        if (audio.volume <= 0) { clearInterval(fadeOut); audio.pause(); audio.currentTime = 0; }
+      }, 50);
+      bgAudio = null;
+    }
   }
 </script>
 
