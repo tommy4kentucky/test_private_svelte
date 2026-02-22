@@ -28,3 +28,9 @@ body {
 		padding: 0;
 	}
 }
+
+/* ── UPSIDE DOWN EASTER EGG ──────────────────────────── */
+body.upside-down {
+	background: #0a0505;
+	font-family: 'Courier New', Courier, monospace;
+}

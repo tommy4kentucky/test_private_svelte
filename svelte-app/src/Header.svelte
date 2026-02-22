@@ -161,4 +161,44 @@
     }
     .profile-photo { width: 120px; height: 155px; }
   }
+
+  /* ── Upside Down theme overrides ─────────────── */
+  :global(body.upside-down .header) {
+    background: linear-gradient(160deg, #0a0000 0%, #1a0606 100%);
+    border-bottom: 1px solid #4a0808;
+  }
+
+  :global(body.upside-down .title) {
+    color: #ff8c00;
+    text-shadow: 0 0 10px rgba(255, 140, 0, 0.6);
+  }
+
+  :global(body.upside-down h1) {
+    text-shadow: 0 0 16px rgba(255, 45, 45, 0.6);
+    color: #ffe0e0;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  :global(body.upside-down .location) {
+    color: rgba(255, 200, 200, 0.7);
+  }
+
+  :global(body.upside-down .profile-photo) {
+    border-color: rgba(255, 45, 45, 0.65);
+    box-shadow: 0 0 20px rgba(180, 0, 0, 0.5);
+  }
+
+  :global(body.upside-down .header-link) {
+    border-color: rgba(255, 45, 45, 0.35);
+    color: #ffcccc;
+  }
+
+  :global(body.upside-down .header-link:hover) {
+    border-color: rgba(255, 45, 45, 0.8);
+    color: #ff4444;
+  }
+
+  :global(body.upside-down .topo-overlay) {
+    opacity: 0.04;
+  }
 </style>
