@@ -227,4 +227,61 @@
     .section-content { display: block !important; }
     .toggle-indicator { display: none; }
   }
+
+  /* ── Upside Down theme overrides ─────────────── */
+  :global(body.upside-down .section-header) {
+    border-bottom-color: #6b0000;
+  }
+
+  :global(body.upside-down .section-title) {
+    color: #ff2d2d;
+    text-shadow: 0 0 10px rgba(255, 45, 45, 0.7), 0 0 22px rgba(255, 0, 0, 0.3);
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  :global(body.upside-down .section-header.clickable) {
+    background: #150a0a;
+    border-bottom-color: #6b0000;
+  }
+
+  :global(body.upside-down .section-header.clickable:hover) {
+    background: #1f0c0c;
+  }
+
+  :global(body.upside-down .section-header.clickable:hover .section-title) {
+    color: #ff4444;
+  }
+
+  :global(body.upside-down .section-content) {
+    color: #d4b0b0;
+  }
+
+  :global(body.upside-down .highlights li) {
+    color: #d4b0b0;
+  }
+
+  :global(body.upside-down .highlights li::before) {
+    color: #ff2d2d;
+  }
+
+  :global(body.upside-down .skill-badge) {
+    background: #5a0000;
+    color: #ffaaaa;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  :global(body.upside-down .org-badge) {
+    background: #150a0a;
+    border-color: #4a0808;
+    color: #d4b0b0;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  :global(body.upside-down .expand-hint) {
+    color: #886060;
+  }
+
+  :global(body.upside-down .toggle-indicator) {
+    color: #cc4444;
+  }
 </style>

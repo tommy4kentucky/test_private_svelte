@@ -55,4 +55,24 @@
   @media print {
     .stat-box:hover { transform: none; }
   }
+
+  /* ── Upside Down theme overrides ─────────────── */
+  :global(body.upside-down .stats) {
+    background: #110a0a;
+  }
+
+  :global(body.upside-down .stat-box) {
+    border-color: #4a0808;
+  }
+
+  :global(body.upside-down .stat-number) {
+    color: #ff2d2d;
+    text-shadow: 0 0 14px rgba(255, 45, 45, 0.8), 0 0 30px rgba(255, 0, 0, 0.3);
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  :global(body.upside-down .stat-label) {
+    color: #886060;
+    font-family: 'Courier New', Courier, monospace;
+  }
 </style>

@@ -2,6 +2,7 @@
   import Header from './Header.svelte';
   import Stats from './Stats.svelte';
   import ResumeSection from './ResumeSection.svelte';
+  import ChristmasLights from './ChristmasLights.svelte';
   import data from './data.json';
 
   const profile = {
@@ -62,9 +63,110 @@
   function paragraphs(text) {
     return text.split('\n\n');
   }
+
+  // ── EASTER EGG ─────────────────────────────────────────
+  let easterEggMode = false;
+  let showActivationOverlay = false;
+  let audioCtx = null;
+  let melodyTimer = null;
+
+  // Toggle body class reactively
+  $: if (typeof document !== 'undefined') {
+    document.body.classList.toggle('upside-down', easterEggMode);
+  }
+
+  // 8-bit square-wave melody engine
+  const MELODY = [
+    // Stranger-Things-ish minor motif, 8-bit style
+    { note: 293.66, dur: 0.18 }, // D4
+    { note: 329.63, dur: 0.18 }, // E4
+    { note: 392.00, dur: 0.18 }, // G4
+    { note: 440.00, dur: 0.18 }, // A4
+    { note: 493.88, dur: 0.28 }, // B4
+    { note: 0,      dur: 0.10 }, // rest
+    { note: 440.00, dur: 0.18 }, // A4
+    { note: 392.00, dur: 0.18 }, // G4
+    { note: 349.23, dur: 0.18 }, // F4
+    { note: 329.63, dur: 0.36 }, // E4
+    { note: 0,      dur: 0.16 }, // rest
+    { note: 293.66, dur: 0.18 }, // D4
+    { note: 261.63, dur: 0.18 }, // C4
+    { note: 293.66, dur: 0.28 }, // D4
+    { note: 0,      dur: 0.20 }, // rest
+  ];
+
+  function scheduleMelody() {
+    if (!audioCtx) return;
+    let t = audioCtx.currentTime + 0.05;
+    for (const step of MELODY) {
+      if (step.note > 0) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.value = step.note;
+        gain.gain.setValueAtTime(0.07, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + step.dur * 0.9);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + step.dur);
+      }
+      t += step.dur;
+    }
+    // Loop: schedule next pass just before this one ends
+    const loopDelay = (t - audioCtx.currentTime) * 1000 - 80;
+    melodyTimer = setTimeout(scheduleMelody, loopDelay);
+  }
+
+  function startAudio() {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      scheduleMelody();
+    } catch (e) { /* audio not available */ }
+  }
+
+  function stopAudio() {
+    if (melodyTimer) clearTimeout(melodyTimer);
+    if (audioCtx) { audioCtx.close(); audioCtx = null; }
+  }
+
+  function activateEasterEgg() {
+    if (easterEggMode) return;
+    showActivationOverlay = true;
+    setTimeout(() => { easterEggMode = true; startAudio(); }, 600);
+    setTimeout(() => { showActivationOverlay = false; }, 3200);
+  }
+
+  function deactivateEasterEgg() {
+    easterEggMode = false;
+    stopAudio();
+  }
 </script>
 
+{#if showActivationOverlay}
+  <div class="ud-intro" aria-live="polite">
+    <div class="ud-particles" aria-hidden="true">
+      {#each Array(18) as _, i}
+        <div class="ud-particle" style="left:{(i/18*100).toFixed(1)}%; animation-delay:{(i*0.17).toFixed(2)}s; animation-duration:{(3+i%4).toFixed(1)}s"></div>
+      {/each}
+    </div>
+    <p class="ud-welcome">WELCOME TO THE</p>
+    <p class="ud-title">UPSIDE DOWN</p>
+    <p class="ud-sub">↓ ↓ ↓</p>
+  </div>
+{/if}
+
+{#if easterEggMode}
+  <div class="scanlines" aria-hidden="true"></div>
+  <button class="return-btn" on:click={deactivateEasterEgg} aria-label="Return to normal view">
+    ← Right-Side Up
+  </button>
+{/if}
+
 <div class="container">
+  {#if easterEggMode}
+    <ChristmasLights />
+  {/if}
   <Header
     name={profile.name}
     title={profile.title}
@@ -280,8 +382,11 @@
 
   </div>
 
-  <div class="footer-photo" on:click={() => openLightbox('./images/08-ridge-run-sunset.jpg', 'Tommy Adams looking off into the distance at sunset on a Kentucky ridge')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && openLightbox('./images/08-ridge-run-sunset.jpg', 'Tommy Adams looking off into the distance at sunset on a Kentucky ridge')}>
+  <div class="footer-photo" class:footer-upside-down={easterEggMode} on:click={activateEasterEgg} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && activateEasterEgg()} title={easterEggMode ? 'You found the Upside Down' : ''}>
     <img src="./images/08-ridge-run-sunset.jpg" alt="Tommy Adams looking off into the distance at sunset on a Kentucky ridge" loading="lazy" />
+    {#if easterEggMode}
+      <div class="footer-found-label">// you found it //</div>
+    {/if}
   </div>
 </div>
 
@@ -974,5 +1079,327 @@
     color: #4a7c6b;
     margin-top: 20px;
     margin-bottom: 10px;
+  }
+
+  /* ════════════════════════════════════════════════════════
+     UPSIDE DOWN EASTER EGG THEME
+     ════════════════════════════════════════════════════════ */
+
+  /* Activation intro overlay */
+  .ud-intro {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: udIntroAnim 3.2s ease-in-out forwards;
+    overflow: hidden;
+  }
+
+  @keyframes udIntroAnim {
+    0%   { opacity: 0; }
+    8%   { opacity: 1; }
+    78%  { opacity: 1; }
+    100% { opacity: 0; pointer-events: none; }
+  }
+
+  .ud-particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .ud-particle {
+    position: absolute;
+    bottom: -10px;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #ff2d2d;
+    opacity: 0.7;
+    animation: floatUp linear infinite;
+  }
+
+  @keyframes floatUp {
+    0%   { transform: translateY(0) scale(1); opacity: 0.7; }
+    100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+  }
+
+  .ud-welcome {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(0.9em, 3vw, 1.4em);
+    color: #ff2d2d;
+    text-transform: uppercase;
+    letter-spacing: 8px;
+    margin: 0 0 10px;
+    text-shadow: 0 0 18px rgba(255, 45, 45, 0.9), 0 0 40px rgba(255, 0, 0, 0.4);
+    opacity: 0;
+    animation: textReveal 3.2s ease forwards;
+    animation-delay: 0.3s;
+  }
+
+  .ud-title {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(2em, 8vw, 4em);
+    font-weight: 900;
+    color: #ff2d2d;
+    text-transform: uppercase;
+    letter-spacing: 6px;
+    margin: 0 0 18px;
+    text-shadow: 0 0 24px rgba(255, 45, 45, 1), 0 0 60px rgba(255, 0, 0, 0.5), 0 0 100px rgba(180, 0, 0, 0.3);
+    opacity: 0;
+    animation: textReveal 3.2s ease forwards;
+    animation-delay: 0.65s;
+  }
+
+  .ud-sub {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.3em;
+    color: #ff6666;
+    letter-spacing: 10px;
+    margin: 0;
+    opacity: 0;
+    animation: textReveal 3.2s ease forwards;
+    animation-delay: 1s;
+    text-shadow: 0 0 10px rgba(255, 45, 45, 0.7);
+  }
+
+  @keyframes textReveal {
+    0%   { opacity: 0; transform: scale(0.85) translateY(8px); }
+    15%  { opacity: 1; transform: scale(1) translateY(0); }
+    78%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* CRT scanlines overlay */
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    z-index: 9990;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.18) 3px,
+      rgba(0, 0, 0, 0.18) 4px
+    );
+  }
+
+  /* Return button */
+  .return-btn {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 9995;
+    background: #1a0000;
+    color: #ff4444;
+    border: 1px solid #8b0000;
+    padding: 8px 16px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.82em;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-radius: 3px;
+    text-shadow: 0 0 8px rgba(255, 68, 68, 0.7);
+    box-shadow: 0 0 12px rgba(180, 0, 0, 0.4);
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  .return-btn:hover {
+    background: #2a0000;
+    box-shadow: 0 0 20px rgba(255, 45, 45, 0.5);
+  }
+
+  /* Footer found label */
+  .footer-found-label {
+    position: absolute;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+    color: #ff4444;
+    letter-spacing: 4px;
+    text-shadow: 0 0 12px rgba(255, 45, 45, 0.9);
+    animation: labelFlicker 2.5s ease-in-out infinite;
+  }
+
+  @keyframes labelFlicker {
+    0%, 90%  { opacity: 1; }
+    92%      { opacity: 0.2; }
+    95%      { opacity: 1; }
+    97%      { opacity: 0.4; }
+    100%     { opacity: 1; }
+  }
+
+  /* ── Container & layout ────────────────────────── */
+  :global(body.upside-down .container) {
+    background: #0d0808;
+    box-shadow: 0 0 40px rgba(180, 0, 0, 0.35), 0 0 80px rgba(100, 0, 0, 0.2);
+    border: 1px solid #4a0808;
+  }
+
+  :global(body.upside-down .profile) {
+    background: #110a0a;
+    border-bottom: 2px solid #6b0000;
+  }
+
+  :global(body.upside-down .profile p) {
+    color: #d4b0b0;
+  }
+
+  :global(body.upside-down .photo-mosaic) {
+    background: #1a0505;
+  }
+
+  :global(body.upside-down .content) {
+    background: #0d0808;
+  }
+
+  :global(body.upside-down .content p) {
+    color: #d4b0b0;
+  }
+
+  /* Footer photo */
+  :global(body.upside-down .footer-photo) {
+    cursor: default;
+    position: relative;
+  }
+
+  :global(body.upside-down .footer-photo img) {
+    filter: brightness(0.45) sepia(0.6) hue-rotate(-20deg) saturate(0.5);
+  }
+
+  :global(body.upside-down .footer-upside-down) {
+    cursor: default;
+  }
+
+  /* ── Work experience ───────────────────────────── */
+  :global(body.upside-down .job) {
+    border-bottom-color: #4a0808;
+  }
+
+  :global(body.upside-down .job-title) {
+    color: #ff8c00;
+  }
+
+  :global(body.upside-down .job-org) {
+    color: #cc5555;
+  }
+
+  :global(body.upside-down .job-dates) {
+    color: #886060;
+  }
+
+  :global(body.upside-down .job-bullets li) {
+    color: #d4b0b0;
+  }
+
+  :global(body.upside-down .job-bullets li::before) {
+    color: #ff2d2d;
+  }
+
+  /* ── Education & degrees ───────────────────────── */
+  :global(body.upside-down .degree-card) {
+    background: #150a0a;
+    border-left-color: #cc2200;
+  }
+
+  :global(body.upside-down .degree-label) {
+    color: #ff8c00;
+  }
+
+  :global(body.upside-down .degree-field) {
+    color: #d4b0b0;
+  }
+
+  :global(body.upside-down .degree-inst) {
+    color: #cc5555;
+  }
+
+  :global(body.upside-down .degrees-label),
+  :global(body.upside-down .teaching-grid-label) {
+    color: #cc5555;
+  }
+
+  :global(body.upside-down .teaching-card) {
+    background: #150a0a;
+    border-left-color: #cc2200;
+    color: #ff8c00;
+  }
+
+  /* ── Executive education ───────────────────────── */
+  :global(body.upside-down .exec-ed-card) {
+    background: #150a0a;
+    border-left-color: #cc2200;
+  }
+
+  :global(body.upside-down .exec-ed-card.upcoming) {
+    background: #180d00;
+    border-left-color: #8b4500;
+  }
+
+  :global(body.upside-down .exec-ed-program) {
+    color: #ff8c00;
+  }
+
+  :global(body.upside-down .exec-ed-year) {
+    color: #886060;
+  }
+
+  :global(body.upside-down .exec-ed-inst) {
+    color: #cc5555;
+  }
+
+  :global(body.upside-down .upcoming-badge) {
+    background: #2a1000;
+    border-color: #6b3300;
+    color: #ff8c00;
+  }
+
+  /* ── Publications & awards ─────────────────────── */
+  :global(body.upside-down .pub-item) {
+    background: #150a0a;
+    border-color: #4a0808;
+  }
+
+  :global(body.upside-down .pub-title) {
+    color: #ff8c00;
+  }
+
+  :global(body.upside-down .pub-meta) {
+    color: #886060;
+  }
+
+  :global(body.upside-down .pub-award) {
+    background: #1a0a00;
+    border-color: #6b3300;
+    color: #ff8c00;
+  }
+
+  :global(body.upside-down .awards-list li) {
+    background: #150a0a;
+    border-color: #4a0808;
+    color: #d4b0b0;
+  }
+
+  /* ── Running / streak ──────────────────────────── */
+  :global(body.upside-down .streak-count) {
+    color: #ff2d2d;
+    text-shadow: 0 0 8px rgba(255, 45, 45, 0.7);
+  }
+
+  :global(body.upside-down .strava-link) {
+    color: #ff8c00;
+  }
+
+  /* ── Lightbox ──────────────────────────────────── */
+  :global(body.upside-down .lightbox) {
+    background: rgba(5, 0, 0, 0.96);
   }
 </style>
