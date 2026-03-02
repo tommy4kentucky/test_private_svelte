@@ -1,7 +1,9 @@
 <script>
   import trainings from './trainings.json';
 
-  const today = new Date().toISOString().slice(0, 10);
+  const easternIsoFormatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' });
+  const easternDateFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York' });
+  const today = easternIsoFormatter.format(new Date());
   let query = '';
   let selectedRegion = 'All';
   let selectedMode = 'All';
@@ -16,9 +18,23 @@
   const modes = ['All', ...new Set(trainings.map((t) => t.mode))];
   const allAvailableDates = ['All dates', ...new Set(trainings.map((t) => t.startDate).sort())];
 
-  const formatDate = (dateString) => new Date(dateString + 'T00:00:00').toLocaleDateString();
+  const formatDate = (dateString) => {
+    const [y, m, d] = dateString.split('-').map(Number);
+    return easternDateFormatter.format(new Date(Date.UTC(y, m - 1, d, 12)));
+  };
   const toICSDate = (dateString) => dateString.replaceAll('-', '');
   const escapeICS = (value) => String(value).replaceAll('\\', '\\\\').replaceAll(';', '\\;').replaceAll(',', '\\,').replaceAll('\n', '\\n');
+
+
+  function addDaysToIsoDate(isoDate, days) {
+    const [y, m, d] = isoDate.split('-').map(Number);
+    const localDate = new Date(y, m - 1, d);
+    localDate.setDate(localDate.getDate() + days);
+    const year = localDate.getFullYear();
+    const month = String(localDate.getMonth() + 1).padStart(2, '0');
+    const day = String(localDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   function clearFilters() {
     query = '';
@@ -39,9 +55,7 @@
   }
 
   function getCalendarUrls(training) {
-    const endExclusive = new Date(training.endDate + 'T00:00:00');
-    endExclusive.setDate(endExclusive.getDate() + 1);
-    const endExclusiveDate = endExclusive.toISOString().slice(0, 10);
+    const endExclusiveDate = addDaysToIsoDate(training.endDate, 1);
 
     return {
       google: `https://calendar.google.com/calendar/render?${new URLSearchParams({
@@ -67,9 +81,7 @@
   function downloadICS(training) {
     const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     const dtStart = toICSDate(training.startDate);
-    const dtEndDate = new Date(training.endDate + 'T00:00:00');
-    dtEndDate.setDate(dtEndDate.getDate() + 1);
-    const dtEnd = dtEndDate.toISOString().slice(0, 10).replaceAll('-', '');
+    const dtEnd = toICSDate(addDaysToIsoDate(training.endDate, 1));
 
     const ics = [
       'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//KYEM Mirror//Training Calendar//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
