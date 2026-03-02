@@ -239,6 +239,7 @@
   let googlePushWebhookUrl = '';
   let googleSyncMessage = '';
   let googleSyncError = '';
+  let googleWebhookToken = '';
 
   let ics203Form = {
     incidentName: 'Kentucky Emergency Operations Center',
@@ -252,6 +253,7 @@
   const HISTORY_KEY = 'eoc-assignment-history-v1';
   const GOOGLE_CONTACTS_URL_KEY = 'eoc-google-contacts-csv-url-v1';
   const GOOGLE_PUSH_URL_KEY = 'eoc-google-push-webhook-url-v1';
+  const GOOGLE_PUSH_TOKEN_KEY = 'eoc-google-push-token-v1';
 
   const flattenRoles = (node) => [node, ...node.children.flatMap(flattenRoles)];
   const roleList = flattenRoles(orgChart);
@@ -388,14 +390,46 @@
     try {
       const response = await fetch(googlePushWebhookUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contacts: masterContacts, assignmentsByRole, assignmentHistory })
+        headers: {
+          'Content-Type': 'application/json',
+          ...(googleWebhookToken ? { Authorization: `Bearer ${googleWebhookToken}` } : {})
+        },
+        body: JSON.stringify(buildGoogleWebhookPayload())
       });
       if (!response.ok) throw new Error(`Webhook returned ${response.status}`);
       googleSyncMessage = 'Pushed current master contacts and assignments to Google webhook.';
     } catch (error) {
       googleSyncError = `Could not push to Google webhook: ${error.message}`;
     }
+  }
+
+
+  function buildAssignmentsSnapshot() {
+    return roleList.map((role) => {
+      const contact = contactsById[assignmentsByRole[role.id]];
+      return {
+        roleId: role.id,
+        roleName: role.name,
+        contactId: contact?.id || '',
+        contactName: contact?.name || '',
+        agency: contact?.agency || '',
+        title: contact?.title || '',
+        email: contact?.email || '',
+        phone: contact?.phone || ''
+      };
+    });
+  }
+
+  function buildGoogleWebhookPayload() {
+    return {
+      version: '1.0',
+      source: 'kyem-eoc-org-tool',
+      sentAt: new Date().toISOString(),
+      incident: ics203Form,
+      masterContacts,
+      assignments: buildAssignmentsSnapshot(),
+      assignmentHistory
+    };
   }
 
   function downloadFile(filename, content, mimeType) {
@@ -466,12 +500,14 @@
     const storedHistory = localStorage.getItem(HISTORY_KEY);
     const storedGoogleContactsUrl = localStorage.getItem(GOOGLE_CONTACTS_URL_KEY);
     const storedGooglePushUrl = localStorage.getItem(GOOGLE_PUSH_URL_KEY);
+    const storedGooglePushToken = localStorage.getItem(GOOGLE_PUSH_TOKEN_KEY);
 
     if (storedContacts) masterContacts = JSON.parse(storedContacts);
     if (storedAssignments) assignmentsByRole = JSON.parse(storedAssignments);
     if (storedHistory) assignmentHistory = JSON.parse(storedHistory);
     if (storedGoogleContactsUrl) googleContactsCsvUrl = storedGoogleContactsUrl;
     if (storedGooglePushUrl) googlePushWebhookUrl = storedGooglePushUrl;
+    if (storedGooglePushToken) googleWebhookToken = storedGooglePushToken;
 
     hydrateFormFromAssignedContact();
 
@@ -484,6 +520,7 @@
     localStorage.setItem(HISTORY_KEY, JSON.stringify(assignmentHistory));
     localStorage.setItem(GOOGLE_CONTACTS_URL_KEY, googleContactsCsvUrl);
     localStorage.setItem(GOOGLE_PUSH_URL_KEY, googlePushWebhookUrl);
+    localStorage.setItem(GOOGLE_PUSH_TOKEN_KEY, googleWebhookToken);
   }
 </script>
 
@@ -539,10 +576,13 @@
       <p class="hint">Publish your contacts sheet as CSV (name,agency,title,email,phone), then paste the URL below.</p>
       <label>Google Sheet CSV URL<input bind:value={googleContactsCsvUrl} placeholder="https://docs.google.com/.../pub?output=csv" /></label>
       <label>Apps Script Webhook URL (optional)<input bind:value={googlePushWebhookUrl} placeholder="https://script.google.com/macros/s/.../exec" /></label>
+      <label>Webhook Bearer Token (optional)<input bind:value={googleWebhookToken} placeholder="shared secret token" /></label>
       <div class="panel-actions">
         <button type="button" on:click={importContactsFromGoogleSheet}>Import from Google Sheet</button>
         <button type="button" on:click={pushContactsToGoogleSheet}>Push current data to webhook</button>
       </div>
+      <p class="hint">Webhook payload includes: incident metadata, master contacts, assignments snapshot, and assignment history.</p>
+      <p class="hint">Apps Script setup guide: <code>docs/google-apps-script-webhook.md</code></p>
       {#if googleSyncMessage}<p class="submit-status">{googleSyncMessage}</p>{/if}
       {#if googleSyncError}<p class="submit-error">{googleSyncError}</p>{/if}
     </section>
