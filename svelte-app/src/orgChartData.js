@@ -1,4 +1,4 @@
-export const orgChart = {
+const baseOrgChart = {
   name: 'SEOC Manager',
   level: 'command',
   children: [
@@ -100,4 +100,41 @@ export const orgChart = {
     },
     { name: 'Admin/Finance', level: 'section' }
   ]
+};
+
+const slug = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+const withIds = (node, lineage = []) => {
+  const id = ['role', ...lineage, slug(node.name)].join('__');
+  return {
+    ...node,
+    id,
+    children: node.children?.map((child) => withIds(child, [...lineage, slug(node.name)])) || []
+  };
+};
+
+export const orgChart = withIds(baseOrgChart);
+
+export const defaultMasterContacts = [
+  {
+    id: 'contact-jane-doe',
+    name: 'Jane Doe',
+    agency: 'KYEM',
+    title: 'SEOC Duty Officer',
+    email: 'jane.doe@example.org',
+    phone: '502-555-0100'
+  },
+  {
+    id: 'contact-john-smith',
+    name: 'John Smith',
+    agency: 'KY National Guard',
+    title: 'Liaison Officer',
+    email: 'john.smith@example.org',
+    phone: '502-555-0111'
+  }
+];
+
+export const defaultAssignments = {
+  'role__seoc-manager': 'contact-jane-doe',
+  'role__liaison': 'contact-john-smith'
 };

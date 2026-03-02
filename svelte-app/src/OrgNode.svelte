@@ -1,5 +1,12 @@
 <script>
+  import { createEventDispatcher } from 'svelte';
+
   export let node;
+  export let selectedRoleId = '';
+  export let assignmentsByRole = {};
+  export let contactsById = {};
+
+  const dispatch = createEventDispatcher();
 
   const levelClass = {
     command: 'command',
@@ -7,97 +14,75 @@
     branch: 'branch',
     unit: 'unit'
   };
+
+  $: assignedContact = contactsById[assignmentsByRole[node.id]];
 </script>
 
 <li>
-  <div class={`node ${levelClass[node.level] || 'unit'}`}>{node.name}</div>
+  <button
+    type="button"
+    class={`node ${levelClass[node.level] || 'unit'} ${selectedRoleId === node.id ? 'selected' : ''}`}
+    on:click={() => dispatch('selectrole', { roleId: node.id })}
+    aria-pressed={selectedRoleId === node.id}
+  >
+    <span class="role-name">{node.name}</span>
+    {#if assignedContact}
+      <span class="assigned-name">{assignedContact.name}</span>
+      <span class="assigned-contact">{assignedContact.phone}</span>
+    {:else}
+      <span class="assigned-name vacant">Vacant</span>
+    {/if}
+  </button>
   {#if node.children?.length}
     <ul>
       {#each node.children as child}
-        <svelte:self node={child} />
+        <svelte:self
+          node={child}
+          selectedRoleId={selectedRoleId}
+          assignmentsByRole={assignmentsByRole}
+          contactsById={contactsById}
+          on:selectrole
+        />
       {/each}
     </ul>
   {/if}
 </li>
 
 <style>
-  li {
-    list-style: none;
-    position: relative;
-    text-align: center;
-    padding: 1.2rem 0.5rem 0 0.5rem;
-  }
+  li { list-style: none; position: relative; text-align: center; padding: .75rem .25rem 0; }
+  li::before, li::after { content: ''; position: absolute; top: 0; right: 50%; border-top: 2px solid #8bbf7a; width: 50%; height: .75rem; }
+  li::after { right: auto; left: 50%; border-left: 2px solid #8bbf7a; }
+  li:only-child::before, li:only-child::after { display: none; }
+  li:only-child { padding-top: 0; }
+  li:first-child::before, li:last-child::after { border: 0; }
+  li:last-child::before { border-right: 2px solid #8bbf7a; border-radius: 0 5px 0 0; }
+  li:first-child::after { border-radius: 5px 0 0 0; }
 
-  li::before,
-  li::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 50%;
-    border-top: 2px solid #8bbf7a;
-    width: 50%;
-    height: 1.2rem;
-  }
-
-  li::after {
-    right: auto;
-    left: 50%;
-    border-left: 2px solid #8bbf7a;
-  }
-
-  li:only-child::before,
-  li:only-child::after {
-    display: none;
-  }
-
-  li:only-child {
-    padding-top: 0;
-  }
-
-  li:first-child::before,
-  li:last-child::after {
-    border: 0;
-  }
-
-  li:last-child::before {
-    border-right: 2px solid #8bbf7a;
-    border-radius: 0 5px 0 0;
-  }
-
-  li:first-child::after {
-    border-radius: 5px 0 0 0;
-  }
-
-  ul {
-    display: flex;
-    justify-content: center;
-    margin: 0;
-    padding: 1.2rem 0 0 0;
-    position: relative;
-  }
-
-  ul::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    border-left: 2px solid #8bbf7a;
-    width: 0;
-    height: 1.2rem;
-  }
+  ul { display: flex; justify-content: center; margin: 0; padding: .75rem 0 0; position: relative; }
+  ul::before { content: ''; position: absolute; top: 0; left: 50%; border-left: 2px solid #8bbf7a; width: 0; height: .75rem; }
 
   .node {
-    display: inline-block;
-    min-width: 170px;
-    max-width: 260px;
-    padding: 0.7rem 0.8rem;
+    display: inline-flex;
+    flex-direction: column;
+    gap: .2rem;
+    min-width: 145px;
+    max-width: 190px;
+    padding: 0.45rem;
     border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.88rem;
+    font-size: .73rem;
     color: #fff;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+    border: 2px solid transparent;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .16);
+    cursor: pointer;
+    text-align: center;
   }
 
+  .role-name { font-weight: 700; }
+  .assigned-name { font-weight: 600; }
+  .assigned-name.vacant { opacity: .9; font-style: italic; }
+  .assigned-contact { font-size: .65rem; opacity: .95; }
+
+  .selected { border-color: #111827; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #111827; }
   .command { background: #f2b600; }
   .section { background: #5ea741; }
   .branch { background: #3f89ca; }
