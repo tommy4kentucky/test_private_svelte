@@ -22,7 +22,27 @@
   let intendedCourse = '';
   let classSearch = '';
 
-  const counties = ['Adair', 'Boyd', 'Campbell', 'Fayette', 'Franklin', 'Jefferson', 'Perry', 'Rowan', 'Warren'];
+  const counties = [
+    'Adair', 'Allen', 'Anderson', 'Ballard', 'Barren', 'Bath', 'Bell', 'Boone', 'Bourbon', 'Boyd',
+    'Boyle', 'Bracken', 'Breathitt', 'Breckinridge', 'Bullitt', 'Butler', 'Caldwell', 'Calloway', 'Campbell', 'Carlisle',
+    'Carroll', 'Carter', 'Casey', 'Christian', 'Clark', 'Clay', 'Clinton', 'Crittenden', 'Cumberland', 'Daviess',
+    'Edmonson', 'Elliott', 'Estill', 'Fayette', 'Fleming', 'Floyd', 'Franklin', 'Fulton', 'Gallatin', 'Garrard',
+    'Grant', 'Graves', 'Grayson', 'Green', 'Greenup', 'Hancock', 'Hardin', 'Harlan', 'Harrison', 'Hart',
+    'Henderson', 'Henry', 'Hickman', 'Hopkins', 'Jackson', 'Jefferson', 'Jessamine', 'Johnson', 'Kenton', 'Knott',
+    'Knox', 'Larue', 'Laurel', 'Lawrence', 'Lee', 'Leslie', 'Letcher', 'Lewis', 'Lincoln', 'Livingston',
+    'Logan', 'Lyon', 'McCracken', 'McCreary', 'McLean', 'Madison', 'Magoffin', 'Marion', 'Marshall', 'Martin',
+    'Mason', 'Meade', 'Menifee', 'Mercer', 'Metcalfe', 'Monroe', 'Montgomery', 'Morgan', 'Muhlenberg', 'Nelson',
+    'Nicholas', 'Ohio', 'Oldham', 'Owen', 'Owsley', 'Pendleton', 'Perry', 'Pike', 'Powell', 'Pulaski',
+    'Robertson', 'Rockcastle', 'Rowan', 'Russell', 'Scott', 'Shelby', 'Simpson', 'Spencer', 'Taylor', 'Todd',
+    'Trigg', 'Trimble', 'Union', 'Warren', 'Washington', 'Wayne', 'Webster', 'Whitley', 'Wolfe', 'Woodford'
+  ];
+  const states = [
+    'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'District of Columbia', 'Florida',
+    'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine',
+    'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+    'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island',
+    'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+  ];
   const payOptions = ['No', 'Yes'];
   const payers = ['Self', 'Agency', 'Grant', 'Other'];
   const jobCategories = ['Emergency Management', 'Fire', 'Law Enforcement', 'Public Health', 'Healthcare', 'Public Works', 'Volunteer'];
@@ -37,6 +57,7 @@
     phone: '',
     cell: '',
     email: '',
+    state: 'Kentucky',
     county: '',
     beingPaid: '',
     paidBy: '',
@@ -218,6 +239,7 @@
     registrationForm.title &&
     registrationForm.phone &&
     registrationForm.email &&
+    registrationForm.state &&
     registrationForm.county &&
     registrationForm.beingPaid &&
     registrationForm.jobCategory &&
@@ -240,6 +262,8 @@
   let assignmentHistory = [];
   let operationSnapshots = [];
   let contactForm = { id: '', name: '', agency: '', title: '', email: '', phone: '' };
+  let selectedMasterContactId = '';
+  let masterContactSearch = '';
   let googleContactsCsvUrl = '';
   let googlePushWebhookUrl = '';
   let googleSyncMessage = '';
@@ -273,6 +297,7 @@
   $: selectedRole = roleById[selectedRoleId] || orgChart;
   $: selectedAssignedContact = contactsById[assignmentsByRole[selectedRole.id]];
   $: populatedRoles = roleList.filter((role) => Boolean(assignmentsByRole[role.id])).length;
+  $: sortedMasterContacts = [...masterContacts].sort((a, b) => a.name.localeCompare(b.name));
   $: recentContactByRole = assignmentHistory.reduce((acc, row) => {
     if (!acc[row.roleId] && contactsById[row.contactId]) acc[row.roleId] = contactsById[row.contactId];
     return acc;
@@ -286,6 +311,7 @@
   function handleRoleSelect(event) {
     const roleId = event.detail.roleId;
     selectedRoleId = roleId;
+    selectedMasterContactId = '';
     hydrateFormFromAssignedContact();
 
     if (!assignmentsByRole[roleId] && recentContactByRole[roleId]) {
@@ -305,6 +331,7 @@
 
   function applyContactToForm(contact) {
     if (!contact) return;
+    selectedMasterContactId = contact.id || '';
     contactForm = {
       id: contact.id || '',
       name: contact.name || contactForm.name,
@@ -313,6 +340,22 @@
       email: contact.email || '',
       phone: contact.phone || ''
     };
+  }
+
+  function selectMasterContactById() {
+    if (!selectedMasterContactId) return;
+    const contact = masterContacts.find((item) => item.id === selectedMasterContactId);
+    applyContactToForm(contact);
+  }
+
+  function selectMasterContactByName() {
+    const q = masterContactSearch.trim().toLowerCase();
+    if (!q) return;
+
+    const contact = masterContacts.find((item) => item.name.toLowerCase() === q);
+    if (contact) {
+      applyContactToForm(contact);
+    }
   }
 
   function handleNameInput() {
@@ -809,10 +852,21 @@
         <form class="assign-form" on:submit|preventDefault={saveRoleAssignment}>
           <datalist id="master-contact-names">{#each masterContacts as contact}<option value={contact.name} />{/each}</datalist>
           <datalist id="master-contact-emails">{#each masterContacts as contact}<option value={contact.email} />{/each}</datalist>
-          <label>Name *<input bind:value={contactForm.name} list="master-contact-names" on:input={handleNameInput} required /></label>
+          <label>Select from master contact list
+            <select bind:value={selectedMasterContactId} on:change={selectMasterContactById}>
+              <option value="">-- Choose a contact from master list --</option>
+              {#each sortedMasterContacts as contact}
+                <option value={contact.id}>{contact.name} ({contact.agency || 'No agency listed'})</option>
+              {/each}
+            </select>
+          </label>
+          <label>Or search master contact by name
+            <input bind:value={masterContactSearch} list="master-contact-names" autocomplete="on" on:change={selectMasterContactByName} placeholder="Start typing a name from master contacts" />
+          </label>
+          <label>Name *<input bind:value={contactForm.name} list="master-contact-names" autocomplete="on" on:input={handleNameInput} required /></label>
           <label>Agency<input bind:value={contactForm.agency} /></label>
           <label>Role/Title<input bind:value={contactForm.title} /></label>
-          <label>Email *<input type="email" bind:value={contactForm.email} list="master-contact-emails" on:input={handleEmailInput} required /></label>
+          <label>Email *<input type="email" bind:value={contactForm.email} list="master-contact-emails" autocomplete="on" on:input={handleEmailInput} required /></label>
           <label>Phone<input bind:value={contactForm.phone} /></label>
           <p class="hint">If email matches a master contact, this role uses that existing contact. Otherwise a new master contact is created.</p>
           <div class="panel-actions">
@@ -962,6 +1016,12 @@
       <label>Cell<input bind:value={registrationForm.cell} /></label>
 
       <label>Email *<input type="email" bind:value={registrationForm.email} required /></label>
+      <label>State *
+        <select bind:value={registrationForm.state} required>
+          <option value="">-- Please select --</option>
+          {#each states as st}<option value={st}>{st}</option>{/each}
+        </select>
+      </label>
       <label>County *
         <select bind:value={registrationForm.county} required>
           <option value="">-- Please select --</option>
