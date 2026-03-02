@@ -229,16 +229,33 @@
 
   let currentPage = 'home';
   let selectedRoleId = orgChart.id;
-  let zoom = 65;
+  let zoom = 105;
 
   let masterContacts = [...defaultMasterContacts];
   let assignmentsByRole = { ...defaultAssignments };
   let assignmentHistory = [];
   let contactForm = { id: '', name: '', agency: '', title: '', email: '', phone: '' };
+  let googleContactsCsvUrl = '';
+  let googlePushWebhookUrl = '';
+  let googleSyncMessage = '';
+  let googleSyncError = '';
+  let googleWebhookToken = '';
+
+  let ics203Form = {
+    incidentName: 'Kentucky Emergency Operations Center',
+    operationalPeriod: '',
+    preparedBy: '',
+    approvedBy: ''
+  };
 
   const CONTACTS_KEY = 'eoc-master-contacts-v1';
   const ASSIGNMENTS_KEY = 'eoc-assignments-v1';
   const HISTORY_KEY = 'eoc-assignment-history-v1';
+  const GOOGLE_CONTACTS_URL_KEY = 'eoc-google-contacts-csv-url-v1';
+  const GOOGLE_PUSH_URL_KEY = 'eoc-google-push-webhook-url-v1';
+  const GOOGLE_PUSH_TOKEN_KEY = 'eoc-google-push-token-v1';
+  const ORG_MASTER_SHEET_URL = 'https://docs.google.com/spreadsheets/d/183yMzgYMxwMmE6E3xIjazH5mgb__WwoY/edit?usp=sharing&ouid=108896342127940549606&rtpof=true&sd=true';
+  const ORG_MASTER_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/183yMzgYMxwMmE6E3xIjazH5mgb__WwoY/export?format=csv';
 
   const flattenRoles = (node) => [node, ...node.children.flatMap(flattenRoles)];
   const roleList = flattenRoles(orgChart);
@@ -253,7 +270,7 @@
 
   function setPage(page) {
     currentPage = page;
-    window.location.hash = page === 'org-chart' ? '#org-chart' : page === 'training' ? '#training' : '#home';
+    window.location.hash = page === 'org-chart' ? '#org-chart' : page === 'training' ? '#training' : page === 'docs' ? '#docs' : '#home';
   }
 
   function handleRoleSelect(event) {
@@ -309,13 +326,174 @@
     window.print();
   }
 
+  function parseContactsCsv(csv) {
+    const [headerLine, ...lines] = csv.trim().split(/\r?\n/);
+    if (!headerLine || lines.length === 0) return [];
+
+    const headers = headerLine.split(',').map((h) => h.trim().toLowerCase());
+    const getIndex = (name) => headers.findIndex((h) => h === name);
+
+    const nameIndex = getIndex('name');
+    const agencyIndex = getIndex('agency');
+    const titleIndex = getIndex('title');
+    const emailIndex = getIndex('email');
+    const phoneIndex = getIndex('phone');
+
+    if (nameIndex === -1 || emailIndex === -1) {
+      throw new Error('CSV must include at least name and email columns.');
+    }
+
+    return lines
+      .map((line) => line.split(',').map((cell) => cell.trim()))
+      .filter((row) => row[nameIndex] && row[emailIndex])
+      .map((row) => ({
+        id: toContactId(row[nameIndex]),
+        name: row[nameIndex],
+        agency: agencyIndex >= 0 ? (row[agencyIndex] || '') : '',
+        title: titleIndex >= 0 ? (row[titleIndex] || '') : '',
+        email: row[emailIndex],
+        phone: phoneIndex >= 0 ? (row[phoneIndex] || '') : ''
+      }));
+  }
+
+  async function importContactsFromGoogleSheet() {
+    googleSyncMessage = '';
+    googleSyncError = '';
+
+    if (!googleContactsCsvUrl) {
+      googleSyncError = 'Add a Google Sheets CSV publish URL first.';
+      return;
+    }
+
+    try {
+      const response = await fetch(googleContactsCsvUrl);
+      if (!response.ok) throw new Error(`Google sheet returned ${response.status}`);
+      const csv = await response.text();
+      const incoming = parseContactsCsv(csv);
+
+      const mergedByEmail = new Map(masterContacts.map((contact) => [contact.email.toLowerCase(), contact]));
+      incoming.forEach((contact) => mergedByEmail.set(contact.email.toLowerCase(), contact));
+      masterContacts = [...mergedByEmail.values()];
+      googleSyncMessage = `Imported ${incoming.length} contacts from Google Sheets.`;
+    } catch (error) {
+      googleSyncError = `Could not import contacts: ${error.message}`;
+    }
+  }
+
+  async function pushContactsToGoogleSheet() {
+    googleSyncMessage = '';
+    googleSyncError = '';
+
+    if (!googlePushWebhookUrl) {
+      googleSyncError = 'Add an Apps Script webhook URL to push updates.';
+      return;
+    }
+
+    try {
+      const response = await fetch(googlePushWebhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(googleWebhookToken ? { Authorization: `Bearer ${googleWebhookToken}` } : {})
+        },
+        body: JSON.stringify(buildGoogleWebhookPayload())
+      });
+      if (!response.ok) throw new Error(`Webhook returned ${response.status}`);
+      googleSyncMessage = 'Pushed current master contacts and assignments to Google webhook.';
+    } catch (error) {
+      googleSyncError = `Could not push to Google webhook: ${error.message}`;
+    }
+  }
+
+
+  function buildAssignmentsSnapshot() {
+    return roleList.map((role) => {
+      const contact = contactsById[assignmentsByRole[role.id]];
+      return {
+        roleId: role.id,
+        roleName: role.name,
+        contactId: contact?.id || '',
+        contactName: contact?.name || '',
+        agency: contact?.agency || '',
+        title: contact?.title || '',
+        email: contact?.email || '',
+        phone: contact?.phone || ''
+      };
+    });
+  }
+
+  function buildGoogleWebhookPayload() {
+    return {
+      version: '1.0',
+      source: 'kyem-eoc-org-tool',
+      sentAt: new Date().toISOString(),
+      incident: ics203Form,
+      masterContacts,
+      assignments: buildAssignmentsSnapshot(),
+      assignmentHistory
+    };
+  }
+
+  function downloadFile(filename, content, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadIcs203Json() {
+    const roster = roleList.map((role) => {
+      const contact = contactsById[assignmentsByRole[role.id]];
+      return {
+        role: role.name,
+        assignedName: contact?.name || '',
+        agency: contact?.agency || '',
+        title: contact?.title || '',
+        email: contact?.email || '',
+        phone: contact?.phone || ''
+      };
+    });
+
+    const payload = {
+      form: 'ICS-203-compatible-draft',
+      incident: ics203Form,
+      generatedAt: new Date().toISOString(),
+      roster
+    };
+
+    downloadFile('ics-203-draft.json', JSON.stringify(payload, null, 2), 'application/json');
+  }
+
+  function downloadIcs207Csv() {
+    const header = 'Role,Assigned Name,Agency,Email,Phone';
+    const rows = roleList.map((role) => {
+      const contact = contactsById[assignmentsByRole[role.id]];
+      return [
+        role.name,
+        contact?.name || 'Vacant',
+        contact?.agency || '',
+        contact?.email || '',
+        contact?.phone || ''
+      ].map((value) => `"${String(value).replaceAll('"', '""')}"`).join(',');
+    });
+
+    downloadFile('ics-207-staffing.csv', [header, ...rows].join('\n'), 'text/csv;charset=utf-8');
+  }
+
   onMount(() => {
     const syncPageFromHash = () => {
       currentPage = window.location.hash === '#org-chart'
         ? 'org-chart'
         : window.location.hash === '#training'
           ? 'training'
-          : 'home';
+          : window.location.hash === '#docs'
+            ? 'docs'
+            : 'home';
     };
 
     syncPageFromHash();
@@ -324,10 +502,17 @@
     const storedContacts = localStorage.getItem(CONTACTS_KEY);
     const storedAssignments = localStorage.getItem(ASSIGNMENTS_KEY);
     const storedHistory = localStorage.getItem(HISTORY_KEY);
+    const storedGoogleContactsUrl = localStorage.getItem(GOOGLE_CONTACTS_URL_KEY);
+    const storedGooglePushUrl = localStorage.getItem(GOOGLE_PUSH_URL_KEY);
+    const storedGooglePushToken = localStorage.getItem(GOOGLE_PUSH_TOKEN_KEY);
 
     if (storedContacts) masterContacts = JSON.parse(storedContacts);
     if (storedAssignments) assignmentsByRole = JSON.parse(storedAssignments);
     if (storedHistory) assignmentHistory = JSON.parse(storedHistory);
+    if (storedGoogleContactsUrl) googleContactsCsvUrl = storedGoogleContactsUrl;
+    if (!storedGoogleContactsUrl) googleContactsCsvUrl = ORG_MASTER_SHEET_CSV_URL;
+    if (storedGooglePushUrl) googlePushWebhookUrl = storedGooglePushUrl;
+    if (storedGooglePushToken) googleWebhookToken = storedGooglePushToken;
 
     hydrateFormFromAssignedContact();
 
@@ -338,6 +523,9 @@
     localStorage.setItem(CONTACTS_KEY, JSON.stringify(masterContacts));
     localStorage.setItem(ASSIGNMENTS_KEY, JSON.stringify(assignmentsByRole));
     localStorage.setItem(HISTORY_KEY, JSON.stringify(assignmentHistory));
+    localStorage.setItem(GOOGLE_CONTACTS_URL_KEY, googleContactsCsvUrl);
+    localStorage.setItem(GOOGLE_PUSH_URL_KEY, googlePushWebhookUrl);
+    localStorage.setItem(GOOGLE_PUSH_TOKEN_KEY, googleWebhookToken);
   }
 </script>
 
@@ -345,6 +533,7 @@
   <a href="#home" class:active={currentPage === 'home'} on:click|preventDefault={() => setPage('home')}>Home</a>
   <a href="#training" class:active={currentPage === 'training'} on:click|preventDefault={() => setPage('training')}>Training site</a>
   <a href="#org-chart" class:active={currentPage === 'org-chart'} on:click|preventDefault={() => setPage('org-chart')}>Org chart page</a>
+  <a href="#docs" class:active={currentPage === 'docs'} on:click|preventDefault={() => setPage('docs')}>Backend docs</a>
 </nav>
 
 {#if currentPage === 'home'}
@@ -368,9 +557,39 @@
         <a href="#org-chart" on:click|preventDefault={() => setPage('org-chart')}>Open Org Chart Page</a>
       </article>
 
-      <article class="home-card muted">
-        <h2>Upcoming Pages</h2>
-        <p>Reserved for additional tools you want to add next.</p>
+      <article class="home-card">
+        <h2>Backend Docs & Data Links</h2>
+        <p>Show where registration and org chart data are stored/synced.</p>
+        <a href="#docs" on:click|preventDefault={() => setPage('docs')}>Open Backend Docs</a>
+      </article>
+    </section>
+  </main>
+{:else if currentPage === 'docs'}
+  <main class="layout">
+    <header>
+      <p class="eyebrow">BACKEND REFERENCE</p>
+      <h1>Data Destinations & Integration Docs</h1>
+      <p class="intro">Use this page during demos to show where training registrations and org chart contacts go.</p>
+    </header>
+
+    <section class="home-grid" aria-label="Backend documentation links">
+      <article class="home-card">
+        <h2>Training Registration Destination</h2>
+        <p>Current behavior: registrations are downloaded as JSON drafts unless a registration API URL is configured in the app.</p>
+        <p class="hint">Configured endpoint value in app: <code>{REGISTRATION_API_URL || 'Not configured (local JSON export mode)'}</code></p>
+      </article>
+
+      <article class="home-card">
+        <h2>Org Chart Master Contact Sheet</h2>
+        <p>Primary sheet used for import/source-of-truth in this prototype.</p>
+        <a href={ORG_MASTER_SHEET_URL} target="_blank" rel="noopener noreferrer">Open Master Contact Google Sheet</a>
+        <p class="hint">CSV feed used by app: <code>{ORG_MASTER_SHEET_CSV_URL}</code></p>
+      </article>
+
+      <article class="home-card">
+        <h2>Apps Script Webhook Setup</h2>
+        <p>Deployment and payload contract for pushing org chart data into Google Sheets tabs.</p>
+        <p class="hint">Repo document: <code>docs/google-apps-script-webhook.md</code></p>
       </article>
     </section>
   </main>
@@ -384,12 +603,43 @@
 
     <section class="org-toolbar no-print" aria-label="Org chart controls">
       <p><strong>{populatedRoles}</strong> / {roleList.length} roles currently staffed</p>
-      <label>Zoom ({zoom}%) <input type="range" min="45" max="100" step="5" bind:value={zoom} /></label>
+      <label>Zoom ({zoom}%) <input type="range" min="85" max="160" step="5" bind:value={zoom} /></label>
       <button type="button" on:click={printOrgChart}>Print / Save PDF</button>
+    </section>
+
+    <section class="google-sync no-print" aria-label="Google Sheets sync">
+      <h2>Google Sheets Contact Sync</h2>
+      <p class="hint">Publish your contacts sheet as CSV (name,agency,title,email,phone), then paste the URL below.</p>
+      <label>Google Sheet CSV URL<input bind:value={googleContactsCsvUrl} placeholder="https://docs.google.com/.../pub?output=csv" /></label>
+      <label>Apps Script Webhook URL (optional)<input bind:value={googlePushWebhookUrl} placeholder="https://script.google.com/macros/s/.../exec" /></label>
+      <label>Webhook Bearer Token (optional)<input bind:value={googleWebhookToken} placeholder="shared secret token" /></label>
+      <div class="panel-actions">
+        <button type="button" on:click={importContactsFromGoogleSheet}>Import from Google Sheet</button>
+        <button type="button" on:click={pushContactsToGoogleSheet}>Push current data to webhook</button>
+      </div>
+      <p class="hint">Webhook payload includes: incident metadata, master contacts, assignments snapshot, and assignment history.</p>
+      <p class="hint">Apps Script setup guide: <code>docs/google-apps-script-webhook.md</code></p>
+      {#if googleSyncMessage}<p class="submit-status">{googleSyncMessage}</p>{/if}
+      {#if googleSyncError}<p class="submit-error">{googleSyncError}</p>{/if}
+    </section>
+
+    <section class="ics-tools no-print" aria-label="ICS forms exports">
+      <h2>ICS 203 / 207 Compatibility</h2>
+      <div class="ics-grid">
+        <label>Incident Name<input bind:value={ics203Form.incidentName} /></label>
+        <label>Operational Period<input bind:value={ics203Form.operationalPeriod} placeholder="e.g. 2026-03-02 0800 to 2000" /></label>
+        <label>Prepared By<input bind:value={ics203Form.preparedBy} /></label>
+        <label>Approved By<input bind:value={ics203Form.approvedBy} /></label>
+      </div>
+      <div class="panel-actions">
+        <button type="button" on:click={downloadIcs203Json}>Download ICS 203 JSON</button>
+        <button type="button" on:click={downloadIcs207Csv}>Download ICS 207 CSV</button>
+      </div>
     </section>
 
     <div class="org-two-col">
       <section class="chart-wrap" aria-label="Organizational chart">
+        <p class="chart-tip no-print">Tip: rotate your phone to landscape for a wider chart view.</p>
         <div class="chart-scale" style={`--chart-zoom: ${zoom / 100}`}>
           <ul class="tree">
             <OrgNode
@@ -684,18 +934,21 @@
   .page-nav a.active { background: #e7f1ff; border-color: #8fb0d8; font-weight: 600; }
 
   .home-layout { min-height: 62vh; }
-  .home-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+  .home-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; align-items: stretch; }
   .home-card { border: 1px solid #d7e0ec; border-radius: 10px; padding: .9rem; background: #fbfdff; }
   .home-card h2 { margin-top: 0; }
   .home-card a { display: inline-block; margin-top: .4rem; text-decoration: none; border: 1px solid #0f5db0; border-radius: 8px; padding: .35rem .55rem; color: #0f5db0; }
-  .home-card.muted { background: #f8fafc; color: #64748b; }
 
   .org-layout { overflow: hidden; }
   .org-toolbar { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: .75rem; }
   .org-toolbar p { margin: 0; }
+  .google-sync, .ics-tools { border: 1px solid #d7e0ec; border-radius: 10px; padding: .75rem; margin-bottom: .8rem; background: #fbfdff; }
+  .google-sync h2, .ics-tools h2 { margin: 0 0 .35rem; font-size: 1rem; }
+  .ics-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .5rem; }
+  .chart-tip { margin: 0 0 .4rem; color: #425b80; font-size: .86rem; }
   .org-two-col { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: .8rem; align-items: start; }
-  .chart-wrap { overflow: auto; padding: .5rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; max-height: 70vh; }
-  .chart-scale { transform: scale(var(--chart-zoom)); transform-origin: top left; width: calc(100% / var(--chart-zoom)); }
+  .chart-wrap { overflow: auto; padding: .6rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; max-height: 78vh; }
+  .chart-scale { transform: scale(var(--chart-zoom)); transform-origin: top left; width: calc(100% / var(--chart-zoom)); min-width: 1320px; }
   .tree { margin: 0 auto; padding: 0; display: table; }
   :global(.tree ul) { margin: 0; padding: 0; display: table; }
   .role-panel { border: 1px solid #d7e0ec; border-radius: 10px; padding: .75rem; background: #fbfdff; }
@@ -707,7 +960,7 @@
   .assignment-state.vacant { color: #b45309; }
   .assignment-report, .master-contacts, .assignment-history { margin-top: 1rem; }
   .assignment-report table, .master-contacts table, .assignment-history table { width: 100%; min-width: 800px; border-collapse: collapse; }
-  .assignment-report th, .assignment-report td, .master-contacts th, .master-contacts td, .assignment-history th, .assignment-history td { border-bottom: 1px solid #e6edf6; padding: .45rem; text-align: left; }
+  .assignment-report th, .assignment-report td, .master-contacts th, .master-contacts td, .assignment-history th, .assignment-history td { border-bottom: 1px solid #e6edf6; padding: .45rem; text-align: left; font-size: .95rem; }
 
   button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #0f5db0; outline-offset: 2px; }
 
@@ -723,7 +976,17 @@
     .reg-grid { grid-template-columns: 1fr; }
     .org-two-col { grid-template-columns: 1fr; }
     .home-grid { grid-template-columns: 1fr; }
+    .ics-grid { grid-template-columns: 1fr; }
     .role-panel { order: -1; }
+    .chart-scale { min-width: 980px; }
+  }
+
+  @media (max-width: 900px) and (orientation: portrait) {
+    .chart-scale { min-width: 1180px; }
+  }
+
+  @media (max-width: 900px) and (orientation: landscape) {
+    .chart-scale { min-width: 920px; }
   }
 
   @media print {

@@ -58,18 +58,18 @@
   li:last-child::before { border-right: 2px solid #8bbf7a; border-radius: 0 5px 0 0; }
   li:first-child::after { border-radius: 5px 0 0 0; }
 
-  ul { display: flex; justify-content: center; margin: 0; padding: .75rem 0 0; position: relative; }
+  ul { display: flex; justify-content: center; margin: 0; padding: .95rem 0 0; position: relative; }
   ul::before { content: ''; position: absolute; top: 0; left: 50%; border-left: 2px solid #8bbf7a; width: 0; height: .75rem; }
 
   .node {
     display: inline-flex;
     flex-direction: column;
     gap: .2rem;
-    min-width: 145px;
-    max-width: 190px;
-    padding: 0.45rem;
+    min-width: 170px;
+    max-width: 220px;
+    padding: 0.6rem;
     border-radius: 8px;
-    font-size: .73rem;
+    font-size: .88rem;
     color: #fff;
     border: 2px solid transparent;
     box-shadow: 0 2px 8px rgba(0, 0, 0, .16);
@@ -80,7 +80,7 @@
   .role-name { font-weight: 700; }
   .assigned-name { font-weight: 600; }
   .assigned-name.vacant { opacity: .9; font-style: italic; }
-  .assigned-contact { font-size: .65rem; opacity: .95; }
+  .assigned-contact { font-size: .78rem; opacity: .95; }
 
   .selected { border-color: #111827; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #111827; }
   .command { background: #f2b600; }
