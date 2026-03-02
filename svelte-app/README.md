@@ -158,3 +158,56 @@ Tip: if you want this repo to only track the new destination, replace `origin` i
 3. Open **Settings → Pages** and confirm the published URL points to this repo.
 4. Hard-refresh the browser (`Ctrl+Shift+R` / `Cmd+Shift+R`) to bypass cached assets.
 5. If needed, open the site in an incognito window to verify fresh content.
+
+
+## Exact step-by-step to view the live site
+
+Follow these exact clicks in GitHub:
+
+1. Open your repository: `https://github.com/thomas-weston-adams/test_private_svelte`
+2. Click **Settings** → **Pages**.
+3. Under **Build and deployment**, set **Source** to **GitHub Actions** (save if prompted).
+4. Merge your PR into `main` (Pages deploy runs from `main`).
+5. Click **Actions**.
+6. Click workflow **Deploy Svelte app to GitHub Pages**.
+7. Open the latest run on `main`.
+8. Confirm both jobs are green:
+   - `build`
+   - `deploy`
+9. Click the **deploy** job.
+10. Click the `github-pages` environment URL shown in that job.
+
+### If you still do not see new changes
+
+1. Hard refresh the live page:
+   - Windows/Linux: `Ctrl+Shift+R`
+   - Mac: `Cmd+Shift+R`
+2. Open in an incognito/private window.
+3. Verify you are looking at the right URL format:
+   - `https://thomas-weston-adams.github.io/test_private_svelte/`
+4. Re-open Actions and ensure the latest run is for the newest merge commit on `main`.
+
+
+## Force the latest prototype live (override bad conflict resolutions)
+
+If conflict resolution accidentally kept old code, use this to publish the **latest conversation version**.
+
+```bash
+# 1) Make sure your local branch with latest work is up to date
+git checkout work
+git pull --ff-only
+
+# 2) Move to main and update it
+git checkout main
+git pull --ff-only
+
+# 3) Replace key files on main with the latest prototype versions from `work`
+git checkout work -- svelte-app/src/App.svelte svelte-app/src/trainings.json .github/workflows/deploy-pages.yml svelte-app/README.md
+
+# 4) Commit and push
+git add svelte-app/src/App.svelte svelte-app/src/trainings.json .github/workflows/deploy-pages.yml svelte-app/README.md
+git commit -m "Restore latest KYEM prototype baseline after conflict resolution"
+git push origin main
+```
+
+After push, open **Actions → Deploy Svelte app to GitHub Pages** and use the URL from the `deploy` job.
