@@ -1,5 +1,8 @@
 <script>
+  import { onMount } from 'svelte';
   import trainings from './trainings.json';
+  import OrgNode from './OrgNode.svelte';
+  import { orgChart } from './orgChartData';
 
   const easternIsoFormatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' });
   const easternDateFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York' });
@@ -222,11 +225,50 @@
     registrationForm.selectedClassId &&
     registrationForm.ageConfirmed &&
     registrationForm.prereqAgreement;
+
+
+  let currentPage = 'training';
+
+  function setPage(page) {
+    currentPage = page;
+    window.location.hash = page === 'org-chart' ? '#org-chart' : '#training';
+  }
+
+  onMount(() => {
+    const syncPageFromHash = () => {
+      currentPage = window.location.hash === '#org-chart' ? 'org-chart' : 'training';
+    };
+
+    syncPageFromHash();
+    window.addEventListener('hashchange', syncPageFromHash);
+
+    return () => window.removeEventListener('hashchange', syncPageFromHash);
+  });
 </script>
 
-<a class="skip-link" href="#results">Skip to training results</a>
+<nav class="page-nav" aria-label="Application pages">
+  <a href="#training" class:active={currentPage === 'training'} on:click|preventDefault={() => setPage('training')}>Training site</a>
+  <a href="#org-chart" class:active={currentPage === 'org-chart'} on:click|preventDefault={() => setPage('org-chart')}>Org chart page</a>
+</nav>
 
-<main class="layout">
+{#if currentPage === 'org-chart'}
+  <main class="layout org-layout">
+    <header>
+      <p class="eyebrow">UNOFFICIAL PROTOTYPE</p>
+      <h1>Kentucky Emergency Management Org Chart</h1>
+      <p class="intro">Draft chart transcribed from the screenshot and exposed as a side page linked from the training site.</p>
+    </header>
+
+    <section class="chart-wrap" aria-label="Organizational chart">
+      <ul class="tree">
+        <OrgNode node={orgChart} />
+      </ul>
+    </section>
+  </main>
+{:else}
+  <a class="skip-link" href="#results">Skip to training results</a>
+
+  <main class="layout">
   <header>
     <p class="eyebrow">UNOFFICIAL PROTOTYPE</p>
     <h1>Kentucky Emergency Management Training Calendar</h1>
@@ -376,6 +418,7 @@
     </form>
   </section>
 {/if}
+{/if}
 
 <style>
   .layout { max-width: 1300px; margin: 0 auto; background: #fff; border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.1); padding: 1.5rem; }
@@ -423,6 +466,15 @@
   .checkbox { display: flex; align-items: flex-start; gap: .5rem; }
   .modal-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .6rem; }
   .primary { background: #1c73d3; color: #fff; border: 1px solid #0f5db0; border-radius: 8px; }
+
+  .page-nav { max-width: 1300px; margin: 1rem auto .5rem; display: flex; gap: .5rem; }
+  .page-nav a { text-decoration: none; border: 1px solid #c5d0df; border-radius: 999px; padding: .35rem .8rem; color: #184778; background: #fff; }
+  .page-nav a.active { background: #e7f1ff; border-color: #8fb0d8; font-weight: 600; }
+
+  .org-layout { overflow-x: auto; }
+  .chart-wrap { overflow-x: auto; padding: .8rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; }
+  .tree { margin: 0 auto; padding: 0; display: table; }
+  :global(.tree ul) { margin: 0; padding: 0; display: table; }
 
   button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #0f5db0; outline-offset: 2px; }
 
