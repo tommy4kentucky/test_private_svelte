@@ -6,7 +6,6 @@
   let selectedRegion = 'All';
   let selectedMode = 'All';
   let selectedDate = 'All dates';
-  let catalogSearch = '';
 
   let showRegistrationModal = false;
   let intendedCourse = '';
@@ -15,14 +14,13 @@
 
   const regions = ['All', ...new Set(trainings.map((t) => t.region))];
   const modes = ['All', ...new Set(trainings.map((t) => t.mode))];
+  const allAvailableDates = ['All dates', ...new Set(trainings.map((t) => t.startDate).sort())];
 
   const formatDate = (dateString) => new Date(dateString + 'T00:00:00').toLocaleDateString();
   const toICSDate = (dateString) => dateString.replaceAll('-', '');
   const escapeICS = (value) => String(value).replaceAll('\\', '\\\\').replaceAll(';', '\\;').replaceAll(',', '\\,').replaceAll('\n', '\\n');
 
-  const allAvailableDates = ['All dates', ...new Set(trainings.map((t) => t.startDate).sort())];
-
-  function resetFilters() {
+  function clearFilters() {
     query = '';
     selectedRegion = 'All';
     selectedMode = 'All';
@@ -102,15 +100,6 @@
     showRegistrationModal = true;
   }
 
-  function closeRegistration() {
-    showRegistrationModal = false;
-  }
-
-  function submitRegistrationSelection() {
-    if (!selectedClassId) return;
-    closeRegistration();
-  }
-
   const inQuery = (training) => {
     const q = query.trim().toLowerCase();
     if (!q) return true;
@@ -128,18 +117,13 @@
     const q = classSearch.trim().toLowerCase();
     return !q || `${training.title} ${training.location} ${training.startDate}`.toLowerCase().includes(q);
   });
-
-  $: catalogClasses = trainings.filter((training) => {
-    const q = catalogSearch.trim().toLowerCase();
-    return !q || `${training.title} ${training.location} ${training.startDate} ${training.region}`.toLowerCase().includes(q);
-  });
 </script>
 
 <main class="layout">
   <header>
-    <p class="eyebrow">Unofficial prototype</p>
+    <p class="eyebrow">UNOFFICIAL PROTOTYPE</p>
     <h1>Kentucky Emergency Management Training Calendar</h1>
-    <p class="intro">You can now see calendar buttons directly on each card, and all classes are always accessible in the full catalog section below.</p>
+    <p class="intro">Desktop table view restored; mobile view now stacks each row for readability and easier tapping.</p>
   </header>
 
   <section class="controls" aria-label="Filter trainings">
@@ -147,53 +131,60 @@
     <label>Region<select bind:value={selectedRegion}>{#each regions as region}<option value={region}>{region}</option>{/each}</select></label>
     <label>Delivery mode<select bind:value={selectedMode}>{#each modes as mode}<option value={mode}>{mode}</option>{/each}</select></label>
     <label>Start date<select bind:value={selectedDate}>{#each allAvailableDates as date}<option value={date}>{date === 'All dates' ? date : formatDate(date)}</option>{/each}</select></label>
-    <button class="reset-btn" on:click={resetFilters}>Clear filters</button>
   </section>
 
-  <p class="summary">Filtered view: {filtered.length} of {trainings.length} classes · Updated {formatDate(today)}</p>
+  <div class="dates-row">
+    {#each allAvailableDates.slice(1) as date}
+      <button class:selected={selectedDate === date} on:click={() => (selectedDate = date)}>{formatDate(date)}</button>
+    {/each}
+    <button on:click={clearFilters}>Show all</button>
+  </div>
 
-  <section class="cards" aria-label="Filtered class cards with calendar actions">
-    {#if filtered.length === 0}
-      <p class="empty">No matching trainings found. Use “Clear filters” to show all classes.</p>
-    {:else}
-      {#each filtered as t}
-        <article class="card">
-          <h3>{t.title}</h3>
-          <p class="meta">{formatDate(t.startDate)}–{formatDate(t.endDate)} · {t.region} · {t.mode}</p>
-          <p class="location">{t.location}</p>
-          <div class="actions-row">
-            <button class="register-btn" on:click={() => openRegistration(t)}>Register</button>
-            <details class="calendar-nested">
-              <summary class="calendar-summary">Add to calendar</summary>
-              <div class="calendar-menu">
-                <button class="calendar-btn apple" on:click={() => downloadICS(t)}> Apple Calendar (.ics)</button>
-                <a class="calendar-btn google" href={getCalendarUrls(t).google} target="_blank" rel="noopener noreferrer">G Google Calendar</a>
-                <a class="calendar-btn outlook" href={getCalendarUrls(t).outlook} target="_blank" rel="noopener noreferrer">O Outlook</a>
-              </div>
-            </details>
-          </div>
-        </article>
-      {/each}
-    {/if}
-  </section>
+  <p class="summary">Showing {filtered.length} of {trainings.length} trainings · Updated {formatDate(today)}</p>
 
-  <section class="catalog" aria-label="All available classes in mock">
-    <h2>All classes in this mock ({trainings.length})</h2>
-    <input bind:value={catalogSearch} placeholder="Search all classes (always full list)" />
-    <ul>
-      {#each catalogClasses as t}
-        <li>{formatDate(t.startDate)} — <strong>{t.title}</strong> ({t.location})</li>
-      {/each}
-    </ul>
+  <section class="table-wrap" aria-label="Training results">
+    <table>
+      <thead>
+        <tr><th>Course</th><th>Dates</th><th>Region</th><th>Location</th><th>Tuition</th><th>Other costs / notes</th><th>Status</th><th>Registration</th><th>Calendar</th></tr>
+      </thead>
+      <tbody>
+        {#if filtered.length === 0}
+          <tr><td colspan="9" class="empty">No matching trainings found.</td></tr>
+        {:else}
+          {#each filtered as t}
+            <tr>
+              <td data-label="Course"><strong>{t.title}</strong><div class="meta">{t.audience} · {t.mode}</div></td>
+              <td data-label="Dates">{formatDate(t.startDate)}–{formatDate(t.endDate)}</td>
+              <td data-label="Region">{t.region}</td>
+              <td data-label="Location">{t.location}</td>
+              <td data-label="Tuition">{t.tuition}</td>
+              <td data-label="Other costs / notes">{t.other}</td>
+              <td data-label="Status"><span class="badge">{t.registration}</span></td>
+              <td data-label="Registration"><button class="register-btn" on:click={() => openRegistration(t)}>Register</button></td>
+              <td data-label="Calendar">
+                <details class="calendar-nested">
+                  <summary class="calendar-summary">Add to calendar</summary>
+                  <div class="calendar-menu">
+                    <button class="calendar-btn apple" on:click={() => downloadICS(t)}> Apple (.ics)</button>
+                    <a class="calendar-btn google" href={getCalendarUrls(t).google} target="_blank" rel="noopener noreferrer">G Google</a>
+                    <a class="calendar-btn outlook" href={getCalendarUrls(t).outlook} target="_blank" rel="noopener noreferrer">O Outlook</a>
+                  </div>
+                </details>
+              </td>
+            </tr>
+          {/each}
+        {/if}
+      </tbody>
+    </table>
   </section>
 </main>
 
 {#if showRegistrationModal}
-  <div class="modal-backdrop" role="presentation" on:click={closeRegistration}></div>
-  <section class="modal" role="dialog" aria-modal="true" aria-label="Choose class before registration">
+  <div class="modal-backdrop" role="presentation" on:click={() => (showRegistrationModal = false)}></div>
+  <section class="modal" role="dialog" aria-modal="true">
     <h2>Confirm class selection before registration</h2>
     <p>You clicked: <strong>{intendedCourse}</strong></p>
-    <p class="warning">Class selection is intentionally not pre-filled. Please search and select a class.</p>
+    <p class="warning">Selection is intentionally not prefilled. Search/select class before continuing.</p>
     <label>Search classes<input bind:value={classSearch} placeholder="Type course, county, or date" /></label>
     <label>Choose class *
       <select bind:value={selectedClassId}>
@@ -204,46 +195,51 @@
       </select>
     </label>
     <div class="modal-actions">
-      <button on:click={closeRegistration}>Cancel</button>
-      <button class="primary" on:click={submitRegistrationSelection} disabled={!selectedClassId}>Continue to registration</button>
+      <button on:click={() => (showRegistrationModal = false)}>Cancel</button>
+      <button class="primary" disabled={!selectedClassId}>Continue to registration</button>
     </div>
   </section>
 {/if}
 
 <style>
-  .layout { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.1); padding: 1.25rem; }
-  .eyebrow { text-transform: uppercase; letter-spacing: .08em; color: #35578a; font-size: .75rem; margin: 0; }
-  h1 { margin: .25rem 0 .5rem; }
-  .intro { margin: 0 0 .9rem; }
-  .controls { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: .6rem; align-items: end; }
-  label { display: grid; gap: .35rem; font-size: .9rem; color: #1f3350; }
-  input, select { padding: .58rem; border: 1px solid #c5d0df; border-radius: 8px; font: inherit; }
-  .reset-btn { height: 40px; border: 1px solid #b7c9e2; border-radius: 8px; background: #f4f9ff; cursor: pointer; }
-  .summary { color: #425b80; margin: .75rem 0; }
-  .cards { display: grid; grid-template-columns: 1fr; gap: .7rem; }
-  .card { border: 1px solid #dce6f2; border-radius: 10px; padding: .75rem; background: #fbfdff; }
-  .card h3 { margin: 0 0 .25rem; }
-  .meta, .location { margin: .1rem 0; color: #4d6380; }
-  .actions-row { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .55rem; align-items: flex-start; }
-  .register-btn, .calendar-btn { border-radius: 999px; padding: .35rem .7rem; font-weight: 600; border: 1px solid; text-decoration: none; }
-  .register-btn { border-color: #0f5db0; background: #1c73d3; color: #fff; }
-
-  .calendar-nested { position: relative; }
+  .layout { max-width: 1300px; margin: 0 auto; background: #fff; border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.1); padding: 1.5rem; }
+  .eyebrow { text-transform: uppercase; letter-spacing: .08em; color: #35578a; }
+  .controls { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: .75rem; }
+  label { display: grid; gap: .35rem; color: #1f3350; }
+  input, select { padding: .6rem; border: 1px solid #c5d0df; border-radius: 8px; font: inherit; }
+  .dates-row { display: flex; flex-wrap: wrap; gap: .4rem; margin: .75rem 0; }
+  .dates-row button { border: 1px solid #c5d0df; background: #fff; border-radius: 999px; padding: .26rem .6rem; }
+  .dates-row button.selected { background: #e7f1ff; border-color: #8fb0d8; }
+  .summary { color: #425b80; }
+  .table-wrap { overflow: auto; border: 1px solid #d7e0ec; border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+  th, td { padding: .75rem; border-bottom: 1px solid #e6edf6; text-align: left; vertical-align: top; }
+  thead th { background: #f3f7fc; }
+  .meta { color: #5d6e87; margin-top: .25rem; }
+  .badge { background: #e7f1ff; color: #184778; padding: .2rem .5rem; border-radius: 999px; font-weight: 600; }
+  .register-btn { border: 1px solid #0f5db0; background: #1c73d3; color: #fff; border-radius: 999px; padding: .35rem .7rem; }
   .calendar-summary { list-style: none; border: 1px solid #8fb0d8; background: #f3f8ff; color: #113b68; border-radius: 999px; padding: .35rem .7rem; font-weight: 600; cursor: pointer; }
   .calendar-summary::-webkit-details-marker { display: none; }
-  .calendar-menu { margin-top: .4rem; display: flex; flex-direction: column; gap: .35rem; min-width: 230px; background: #fff; border: 1px solid #dce6f2; border-radius: 10px; padding: .45rem; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+  .calendar-menu { margin-top: .4rem; display: flex; flex-direction: column; gap: .35rem; min-width: 180px; }
+  .calendar-btn { border-radius: 999px; padding: .33rem .65rem; border: 1px solid; text-decoration: none; }
   .calendar-btn.apple { border-color: #d8d8db; background: #f7f7f8; color: #111; }
   .calendar-btn.google { border-color: #8fb0d8; background: #f3f8ff; color: #113b68; }
   .calendar-btn.outlook { border-color: #8fb0d8; background: #eef6ff; color: #0a3f73; }
-  .empty { color: #5d6e87; }
-  .catalog { margin-top: 1rem; border-top: 1px solid #e4ecf6; padding-top: .8rem; }
-  .catalog ul { margin: .5rem 0 0; padding-left: 1rem; }
 
-  .modal-backdrop { position: fixed; inset: 0; background: rgba(8,23,48,.45); z-index: 40; }
-  .modal { position: fixed; z-index: 50; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(680px, 92vw); background: #fff; border-radius: 12px; padding: 1rem; }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(8,23,48,.45); }
+  .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(680px, 92vw); background: #fff; border-radius: 12px; padding: 1rem; }
   .warning { background: #fff5e6; border: 1px solid #ffd9a3; border-radius: 8px; padding: .55rem; }
   .modal-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .6rem; }
   .primary { background: #1c73d3; color: #fff; border: 1px solid #0f5db0; border-radius: 8px; }
 
-  @media (max-width: 900px) { .controls { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) {
+    .layout { padding: 1rem; }
+    .controls { grid-template-columns: 1fr; }
+    .table-wrap { border: 0; }
+    table, thead, tbody, tr, th, td { display: block; width: 100%; }
+    thead { display: none; }
+    tr { background: #fbfdff; border: 1px solid #dce6f2; border-radius: 10px; margin-bottom: .7rem; padding: .4rem; }
+    td { border: 0; padding: .45rem .35rem; }
+    td::before { content: attr(data-label); display: block; color: #5a6f8d; font-size: .8rem; margin-bottom: .12rem; }
+  }
 </style>
