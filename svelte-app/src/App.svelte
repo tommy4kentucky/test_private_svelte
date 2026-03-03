@@ -603,6 +603,7 @@
         : h === '#training' ? 'training'
         : h === '#news' ? 'news'
         : h === '#directory' ? 'directory'
+        : h === '#media-inquiry' ? 'media-inquiry'
         : h === '#twitter' || h === '#x' ? 'twitter'
         : h === '#docs' ? 'docs'
         : h === '#kyem-home' ? 'kyem-home'
@@ -664,6 +665,7 @@
   <a href="#org-chart" class:active={currentPage === 'org-chart'} on:click|preventDefault={() => setPage('org-chart')}>Org Chart</a>
   <a href="#news" class:active={currentPage === 'news'} on:click|preventDefault={() => setPage('news')}>News</a>
   <a href="#directory" class:active={currentPage === 'directory'} on:click|preventDefault={() => setPage('directory')}>Directory</a>
+  <a href="#media-inquiry" class:active={currentPage === 'media-inquiry'} on:click|preventDefault={() => setPage('media-inquiry')}>Media Inquiry</a>
   <a href="#twitter" class:active={currentPage === 'twitter'} on:click|preventDefault={() => setPage('twitter')}>Twitter/X</a>
   <a href="#docs" class:active={currentPage === 'docs'} on:click|preventDefault={() => setPage('docs')}>Backend Docs</a>
   <a href="#kyem-home" class:active={currentPage === 'kyem-home'} on:click|preventDefault={() => setPage('kyem-home')}>KYEM Site</a>
@@ -700,6 +702,12 @@
         <h2>Directory</h2>
         <p>Contact directory for KYEM partners and agency personnel.</p>
         <a href="#directory" on:click|preventDefault={() => setPage('directory')}>Open Directory</a>
+      </article>
+
+      <article class="home-card">
+        <h2>Media Inquiry</h2>
+        <p>Submit a media inquiry to the KYEM Public Information Office.</p>
+        <a href="#media-inquiry" on:click|preventDefault={() => setPage('media-inquiry')}>Open Media Inquiry Form</a>
       </article>
 
       <article class="home-card">
@@ -1149,6 +1157,25 @@
         </article>
       </div>
     </section>
+  </main>
+
+{:else if currentPage === 'media-inquiry'}
+  <main class="layout home-layout">
+    <header>
+      <p class="eyebrow">PUBLIC INFORMATION OFFICE</p>
+      <h1>Media Inquiry Form</h1>
+      <p class="intro">Use this form to submit a media inquiry to the KYEM Public Information Office. Both David Davis and Gordon Boyd will be notified.</p>
+    </header>
+    <div class="media-inquiry-section" style="margin-top:0">
+      <iframe
+        class="media-inquiry-frame"
+        src="https://docs.google.com/forms/d/e/1FAIpQLSeEPiumFskrW3GmAtEpMs7dOwG7qa56U91BHjaqWtk8uL0MXg/viewform?embedded=true"
+        title="KYEM Media Inquiry Form"
+        frameborder="0"
+        marginheight="0"
+        marginwidth="0"
+      >Loading…</iframe>
+    </div>
   </main>
 
 {:else if currentPage === 'twitter'}
