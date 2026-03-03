@@ -22,7 +22,27 @@
   let intendedCourse = '';
   let classSearch = '';
 
-  const counties = ['Adair', 'Boyd', 'Campbell', 'Fayette', 'Franklin', 'Jefferson', 'Perry', 'Rowan', 'Warren'];
+  const counties = [
+    'Adair', 'Allen', 'Anderson', 'Ballard', 'Barren', 'Bath', 'Bell', 'Boone', 'Bourbon', 'Boyd',
+    'Boyle', 'Bracken', 'Breathitt', 'Breckinridge', 'Bullitt', 'Butler', 'Caldwell', 'Calloway', 'Campbell', 'Carlisle',
+    'Carroll', 'Carter', 'Casey', 'Christian', 'Clark', 'Clay', 'Clinton', 'Crittenden', 'Cumberland', 'Daviess',
+    'Edmonson', 'Elliott', 'Estill', 'Fayette', 'Fleming', 'Floyd', 'Franklin', 'Fulton', 'Gallatin', 'Garrard',
+    'Grant', 'Graves', 'Grayson', 'Green', 'Greenup', 'Hancock', 'Hardin', 'Harlan', 'Harrison', 'Hart',
+    'Henderson', 'Henry', 'Hickman', 'Hopkins', 'Jackson', 'Jefferson', 'Jessamine', 'Johnson', 'Kenton', 'Knott',
+    'Knox', 'Larue', 'Laurel', 'Lawrence', 'Lee', 'Leslie', 'Letcher', 'Lewis', 'Lincoln', 'Livingston',
+    'Logan', 'Lyon', 'McCracken', 'McCreary', 'McLean', 'Madison', 'Magoffin', 'Marion', 'Marshall', 'Martin',
+    'Mason', 'Meade', 'Menifee', 'Mercer', 'Metcalfe', 'Monroe', 'Montgomery', 'Morgan', 'Muhlenberg', 'Nelson',
+    'Nicholas', 'Ohio', 'Oldham', 'Owen', 'Owsley', 'Pendleton', 'Perry', 'Pike', 'Powell', 'Pulaski',
+    'Robertson', 'Rockcastle', 'Rowan', 'Russell', 'Scott', 'Shelby', 'Simpson', 'Spencer', 'Taylor', 'Todd',
+    'Trigg', 'Trimble', 'Union', 'Warren', 'Washington', 'Wayne', 'Webster', 'Whitley', 'Wolfe', 'Woodford'
+  ];
+  const states = [
+    'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'District of Columbia', 'Florida',
+    'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine',
+    'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+    'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island',
+    'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+  ];
   const payOptions = ['No', 'Yes'];
   const payers = ['Self', 'Agency', 'Grant', 'Other'];
   const jobCategories = ['Emergency Management', 'Fire', 'Law Enforcement', 'Public Health', 'Healthcare', 'Public Works', 'Volunteer'];
@@ -37,6 +57,7 @@
     phone: '',
     cell: '',
     email: '',
+    state: 'Kentucky',
     county: '',
     beingPaid: '',
     paidBy: '',
@@ -218,6 +239,7 @@
     registrationForm.title &&
     registrationForm.phone &&
     registrationForm.email &&
+    registrationForm.state &&
     registrationForm.county &&
     registrationForm.beingPaid &&
     registrationForm.jobCategory &&
@@ -780,6 +802,12 @@
       <label>Cell<input bind:value={registrationForm.cell} /></label>
 
       <label>Email *<input type="email" bind:value={registrationForm.email} required /></label>
+      <label>State *
+        <select bind:value={registrationForm.state} required>
+          <option value="">-- Please select --</option>
+          {#each states as st}<option value={st}>{st}</option>{/each}
+        </select>
+      </label>
       <label>County *
         <select bind:value={registrationForm.county} required>
           <option value="">-- Please select --</option>
