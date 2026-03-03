@@ -21,6 +21,10 @@
   const BACKEND_DOCS_SHEET_URL = '';
   const BACKEND_DOCS_CSV_URL = '';
 
+  // Set to a Formspree endpoint (https://formspree.io/f/YOUR_FORM_ID) to send
+  // media inquiry emails automatically. Leave empty to fall back to mailto:.
+  const MEDIA_INQUIRY_FORMSPREE_URL = '';
+
   const kyemPIOContacts = [
     {
       initials: 'GB',
@@ -104,6 +108,11 @@
   ];
   let submissionMessage = '';
   let submissionError = '';
+
+  let mediaForm = { name: '', org: '', phone: '', email: '', subject: '', message: '', deadline: '' };
+  let mediaSubmitting = false;
+  let mediaSubmitted = false;
+  let mediaError = '';
 
   let showRegistrationModal = false;
   let intendedCourse = '';
@@ -299,6 +308,48 @@
 
     submissionMessage = 'Registration exported as JSON draft (API not connected yet).';
     showRegistrationModal = false;
+  }
+
+  async function handleMediaInquirySubmit() {
+    mediaSubmitting = true;
+    mediaError = '';
+
+    if (MEDIA_INQUIRY_FORMSPREE_URL) {
+      try {
+        const res = await fetch(MEDIA_INQUIRY_FORMSPREE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            ...mediaForm,
+            _subject: `Media Inquiry: ${mediaForm.subject}`,
+            submittedAt: new Date().toISOString()
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || `Server returned ${res.status}`);
+        mediaSubmitted = true;
+        mediaForm = { name: '', org: '', phone: '', email: '', subject: '', message: '', deadline: '' };
+      } catch (err) {
+        mediaError = `Could not send inquiry: ${err.message}`;
+      } finally {
+        mediaSubmitting = false;
+      }
+      return;
+    }
+
+    // Fallback: open the user's email client with both PIO officers pre-filled
+    const lines = [
+      `Name: ${mediaForm.name}`,
+      `Organization: ${mediaForm.org || '—'}`,
+      `Phone: ${mediaForm.phone || '—'}`,
+      `Reply-to email: ${mediaForm.email}`,
+      ...(mediaForm.deadline ? [`Response deadline: ${mediaForm.deadline}`] : []),
+      '',
+      mediaForm.message
+    ];
+    const mailto = `mailto:david.davis@ky-em.org,gordon.boyd@ky-em.org?subject=${encodeURIComponent('Media Inquiry: ' + (mediaForm.subject || '(no subject)'))}&body=${encodeURIComponent(lines.join('\n'))}`;
+    window.location.href = mailto;
+    mediaSubmitting = false;
   }
 
   const inQuery = (training) => {
@@ -1080,7 +1131,38 @@
 
     <section aria-label="Public information contacts">
       <h2 class="dir-section-label">Public Information Office</h2>
-      <p class="hint">For media inquiries, contact <a href="mailto:david.davis@ky-em.org">David Davis</a> or <a href="mailto:gordon.boyd@ky-em.org">Gordon Boyd</a>.</p>
+      <p class="hint">For media inquiries, contact <a href="mailto:david.davis@ky-em.org">David Davis</a> or <a href="mailto:gordon.boyd@ky-em.org">Gordon Boyd</a>, or use the form below.</p>
+
+      <div class="media-inquiry-section">
+        <h3 class="media-inquiry-heading">Submit a Media Inquiry</h3>
+        {#if mediaSubmitted}
+          <div class="media-success">
+            <strong>Inquiry sent.</strong> The KYEM Public Information Office will follow up as soon as possible.
+            <button type="button" class="primary" style="margin-top:.75rem" on:click={() => (mediaSubmitted = false)}>Send another inquiry</button>
+          </div>
+        {:else}
+          <form class="reg-grid" on:submit|preventDefault={handleMediaInquirySubmit}>
+            <label>Your name *<input bind:value={mediaForm.name} required /></label>
+            <label>Organization / media outlet<input bind:value={mediaForm.org} /></label>
+            <label>Phone<input type="tel" bind:value={mediaForm.phone} /></label>
+            <label>Email *<input type="email" bind:value={mediaForm.email} required /></label>
+            <label class="full">Subject *<input bind:value={mediaForm.subject} required /></label>
+            <label class="full">Message / inquiry *<textarea rows="5" bind:value={mediaForm.message} required></textarea></label>
+            <label>Response deadline (optional)<input type="date" bind:value={mediaForm.deadline} /></label>
+            {#if mediaError}<p class="warning full">{mediaError}</p>{/if}
+            <div class="modal-actions full">
+              <button type="submit" class="primary" disabled={mediaSubmitting}>
+                {mediaSubmitting ? 'Sending…' : 'Send to KYEM Public Information Office'}
+              </button>
+            </div>
+            <p class="hint destination full">
+              {MEDIA_INQUIRY_FORMSPREE_URL
+                ? 'This form emails both David Davis and Gordon Boyd directly.'
+                : 'Will open your email client with both David Davis and Gordon Boyd as recipients.'}
+            </p>
+          </form>
+        {/if}
+      </div>
 
       <div class="staff-grid">
         {#each kyemPIOContacts as person}
@@ -1440,6 +1522,11 @@
   .kyem-contact-grid p { margin: 0 0 .2rem; font-size: .87rem; color: #374f6e; }
   .kyem-contact-grid a { color: #0f5db0; text-decoration: none; }
   .kyem-contact-grid a:hover { text-decoration: underline; }
+
+  /* Media inquiry form */
+  .media-inquiry-section { margin-top: 1.2rem; background: #f4f8ff; border: 1px solid #d0dff0; border-radius: 12px; padding: 1.25rem 1.25rem 1rem; }
+  .media-inquiry-heading { margin: 0 0 .85rem; font-size: 1rem; color: #0a2d5a; font-weight: 700; }
+  .media-success { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px; padding: 1rem; color: #1d5f36; display: flex; flex-direction: column; align-items: flex-start; }
 
   /* Staff directory */
   .dir-section-label { margin: 0 0 .4rem; font-size: 1.1rem; color: #0a2d5a; border-bottom: 2px solid #0f5db0; padding-bottom: .3rem; }
