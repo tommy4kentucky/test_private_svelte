@@ -13,10 +13,6 @@
   let selectedMode = 'All';
   let selectedDate = 'All dates';
 
-  // Set this to your deployed registration API endpoint to persist submissions.
-  // Keep empty to use local JSON download fallback.
-  const REGISTRATION_API_URL = '';
-
   // Backend docs: set these to your master Google Sheet and CSV publish URLs.
   const BACKEND_DOCS_SHEET_URL = '';
   const BACKEND_DOCS_CSV_URL = '';
@@ -106,8 +102,14 @@
   let submissionMessage = '';
   let submissionError = '';
 
-
   let showRegistrationModal = false;
+  let showRegistrations = false;
+  let savedRegistrations = [];
+
+  const REGISTRATIONS_KEY = 'eoc-registrations-v1';
+
+  const newsCategories = ['All', ...new Set(kyemNews.map((n) => n.category))];
+  let newsCategory = 'All';
   let intendedCourse = '';
   let classSearch = '';
 
@@ -269,37 +271,30 @@
       submittedAtEastern: today
     };
 
-    if (REGISTRATION_API_URL) {
+    // Always save locally so Backend Docs panel shows it
+    savedRegistrations = [...savedRegistrations, { ...payload, id: Date.now() }];
+    localStorage.setItem(REGISTRATIONS_KEY, JSON.stringify(savedRegistrations));
+
+    // Also POST to Google Sheet webhook if configured
+    if (registrationWebhookUrl) {
       try {
-        const response = await fetch(REGISTRATION_API_URL, {
+        const res = await fetch(registrationWebhookUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          headers: {
+            'Content-Type': 'application/json',
+            ...(registrationWebhookToken ? { Authorization: `Bearer ${registrationWebhookToken}` } : {})
+          },
+          body: JSON.stringify({ type: 'registration', ...payload })
         });
-
-        if (!response.ok) {
-          throw new Error(`Registration API returned ${response.status}`);
-        }
-
-        submissionMessage = 'Registration submitted to connected class database.';
-        showRegistrationModal = false;
-        return;
-      } catch (error) {
-        submissionError = 'Could not submit to the connected database. Downloading draft JSON instead.';
+        if (!res.ok) throw new Error(`Webhook returned ${res.status}`);
+        submissionMessage = 'Registration saved and sent to Google Sheet.';
+      } catch (err) {
+        submissionMessage = 'Registration saved locally. Could not reach Google Sheet webhook.';
       }
+    } else {
+      submissionMessage = 'Registration saved. Connect a webhook on the Backend Docs page to log to Google Sheets.';
     }
 
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `kyem-registration-${registrationForm.lastName || 'draft'}.json`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-
-    submissionMessage = 'Registration exported as JSON draft (API not connected yet).';
     showRegistrationModal = false;
   }
 
@@ -308,6 +303,8 @@
     if (!q) return true;
     return [training.title, training.audience, training.location, training.other, training.startDate, training.endDate].join(' ').toLowerCase().includes(q);
   };
+
+  $: filteredNews = newsCategory === 'All' ? kyemNews : kyemNews.filter((n) => n.category === newsCategory);
 
   $: filtered = trainings.filter((training) => {
     const regionMatch = selectedRegion === 'All' || training.region === selectedRegion;
@@ -349,6 +346,10 @@
   let contactForm = { id: '', name: '', agency: '', title: '', email: '', phone: '' };
   let googleContactsCsvUrl = '';
   let googlePushWebhookUrl = '';
+  let registrationWebhookUrl = '';
+  let registrationWebhookToken = '';
+  let registrationWebhookStatus = '';
+  let registrationWebhookError = '';
   let googleSyncMessage = '';
   let googleSyncError = '';
   let googleWebhookToken = '';
@@ -361,6 +362,8 @@
   };
 
   const CONTACTS_KEY = 'eoc-master-contacts-v1';
+  const REGISTRATION_WEBHOOK_KEY = 'eoc-registration-webhook-url-v1';
+  const REGISTRATION_WEBHOOK_TOKEN_KEY = 'eoc-registration-webhook-token-v1';
   const ASSIGNMENTS_KEY = 'eoc-assignments-v1';
   const HISTORY_KEY = 'eoc-assignment-history-v1';
   const GOOGLE_CONTACTS_URL_KEY = 'eoc-google-contacts-csv-url-v1';
@@ -545,6 +548,21 @@
     };
   }
 
+  function exportRegistrationsCsv() {
+    const cols = ['id','submittedAtEastern','firstName','middleInitial','lastName','agency','title','phone','cell','email','state','county','beingPaid','paidBy','jobCategory','registrantType','selectedClass','accommodations','ageConfirmed','prereqAgreement'];
+    const header = cols.join(',');
+    const rows = savedRegistrations.map((r) =>
+      cols.map((k) => `"${String(r[k] ?? '').replaceAll('"', '""')}"`).join(',')
+    );
+    downloadFile('kyem-registrations.csv', [header, ...rows].join('\n'), 'text/csv;charset=utf-8');
+  }
+
+  function clearSavedRegistrations() {
+    if (!confirm('Delete all saved registrations from this browser? This cannot be undone.')) return;
+    savedRegistrations = [];
+    localStorage.removeItem(REGISTRATIONS_KEY);
+  }
+
   function downloadFile(filename, content, mimeType) {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
@@ -627,6 +645,14 @@
     if (storedGooglePushUrl) googlePushWebhookUrl = storedGooglePushUrl;
     if (storedGooglePushToken) googleWebhookToken = storedGooglePushToken;
 
+    const storedRegistrations = localStorage.getItem(REGISTRATIONS_KEY);
+    if (storedRegistrations) savedRegistrations = JSON.parse(storedRegistrations);
+
+    const storedRegWebhookUrl = localStorage.getItem(REGISTRATION_WEBHOOK_KEY);
+    const storedRegWebhookToken = localStorage.getItem(REGISTRATION_WEBHOOK_TOKEN_KEY);
+    if (storedRegWebhookUrl) registrationWebhookUrl = storedRegWebhookUrl;
+    if (storedRegWebhookToken) registrationWebhookToken = storedRegWebhookToken;
+
     hydrateFormFromAssignedContact();
 
     // Generate vCard QR codes for PIO contacts
@@ -648,6 +674,11 @@
 
     return () => window.removeEventListener('hashchange', syncPageFromHash);
   });
+
+  $: if (currentPage === 'docs') {
+    localStorage.setItem(REGISTRATION_WEBHOOK_KEY, registrationWebhookUrl);
+    localStorage.setItem(REGISTRATION_WEBHOOK_TOKEN_KEY, registrationWebhookToken);
+  }
 
   $: if (currentPage === 'org-chart') {
     localStorage.setItem(CONTACTS_KEY, JSON.stringify(masterContacts));
@@ -929,6 +960,7 @@
       </tbody>
     </table>
   </section>
+
 </main>
 
 {#if showRegistrationModal}
@@ -938,7 +970,7 @@
     <h2 id="registration-modal-title">KYEM Registration (Prototype Replacement for Logiforms)</h2>
     <p>You clicked: <strong>{intendedCourse}</strong></p>
     <p id="registration-modal-desc" class="warning">Class is intentionally not prefilled. Search and select from the class list below.</p>
-    <p class="destination">Data destination: {REGISTRATION_API_URL ? 'Connected registration database (API)' : 'Local JSON draft download (no live database connected yet)'}</p>
+    <p class="destination">Data destination: {registrationWebhookUrl ? `Google Sheet via webhook + local browser storage` : 'Local browser storage only (configure webhook on Backend Docs page)'}</p>
 
     <form class="reg-grid" on:submit|preventDefault={handleRegistrationSubmit}>
       <label>First Name *<input bind:value={registrationForm.firstName} required /></label>
@@ -1028,12 +1060,17 @@
     <header>
       <p class="eyebrow">NEWS &amp; PUBLIC INFORMATION</p>
       <h1>Kentucky Emergency Management News &amp; Information</h1>
-      <p class="intro">Latest declarations, grants, program updates, and announcements from KYEM. Source: <a href="https://www.kyem.ky.gov/inside-kyem/news" target="_blank" rel="noopener noreferrer">kyem.ky.gov/inside-kyem/news</a></p>
+      <p class="intro">Latest declarations, grants, program updates, and announcements from KYEM. Source: <a href="https://www.kyem.ky.gov/inside-kyem/news" target="_blank" rel="noopener noreferrer">kyem.ky.gov/inside-kyem/news ↗</a></p>
     </header>
 
     <section class="news-pio" aria-label="Public Information Office contacts">
-      <h2 class="news-pio-heading">Media &amp; Public Information Contacts</h2>
-      <p class="hint">For media inquiries or official statements, contact the KYEM Public Information Office or <a href="#media-inquiry" on:click|preventDefault={() => setPage('media-inquiry')}>submit a media inquiry form</a>.</p>
+      <div class="news-pio-header">
+        <div>
+          <h2 class="news-pio-heading">Media &amp; Public Information Contacts</h2>
+          <p class="hint">For media inquiries or official statements, contact the KYEM Public Information Office.</p>
+        </div>
+        <a href="#media-inquiry" class="news-pio-cta" on:click|preventDefault={() => setPage('media-inquiry')}>Submit a Media Inquiry →</a>
+      </div>
       <div class="news-pio-grid">
         {#each kyemPIOContacts as person}
           <article class="news-pio-card">
@@ -1064,9 +1101,23 @@
       </div>
     </section>
 
-    <h2 class="news-section-heading">Recent News &amp; Announcements</h2>
+    <div class="news-controls">
+      <h2 class="news-section-heading" style="margin:0">Recent News &amp; Announcements</h2>
+      <div class="news-filter-chips" role="group" aria-label="Filter by category">
+        {#each newsCategories as cat}
+          <button
+            class="news-chip"
+            class:active={newsCategory === cat}
+            on:click={() => (newsCategory = cat)}
+          >{cat}</button>
+        {/each}
+      </div>
+    </div>
+    <p class="news-count" role="status" aria-live="polite">
+      {filteredNews.length} of {kyemNews.length} articles{newsCategory !== 'All' ? ` · ${newsCategory}` : ''}
+    </p>
     <div class="news-grid">
-      {#each kyemNews as item}
+      {#each filteredNews as item (item.id)}
         <article class="news-card">
           <div class="news-meta">
             <span class="news-date">{item.date}</span>
@@ -1342,11 +1393,76 @@
         <p>Setup guide for the Apps Script push webhook integration.</p>
         <code>docs/google-apps-script-webhook.md</code>
       </article>
-      <article class="home-card">
-        <h2>Registration API</h2>
-        <p>Connect a registration database via the <code>REGISTRATION_API_URL</code> constant in App.svelte.</p>
-      </article>
     </div>
+
+    <section class="reg-webhook-config" aria-label="Registration webhook configuration">
+      <h2 class="news-section-heading">Registration → Google Sheet Webhook</h2>
+      <p class="hint">Paste your deployed Google Apps Script URL below. Every training registration will be POSTed there and appended to the <strong>Registrations</strong> tab of your Google Sheet. See <code>docs/google-apps-script-webhook.md</code> for setup.</p>
+      <div class="reg-webhook-fields">
+        <label>Apps Script Webhook URL<input bind:value={registrationWebhookUrl} placeholder="https://script.google.com/macros/s/.../exec" /></label>
+        <label>Bearer Token (optional)<input bind:value={registrationWebhookToken} placeholder="shared secret token" /></label>
+      </div>
+      <p class="hint" style="margin-top:.4rem">
+        {#if registrationWebhookUrl}
+          <span style="color:#1d5f36">● Webhook configured — registrations will be sent to Google Sheets on submit.</span>
+        {:else}
+          <span style="color:#b45309">● No webhook set — registrations are saved in this browser only.</span>
+        {/if}
+      </p>
+      {#if registrationWebhookStatus}<p class="submit-status">{registrationWebhookStatus}</p>{/if}
+      {#if registrationWebhookError}<p class="submit-error">{registrationWebhookError}</p>{/if}
+    </section>
+
+    <section class="reg-submissions" aria-label="Submitted registrations" style="margin-top:1.5rem">
+      <div class="reg-submissions-header">
+        <h2 class="news-section-heading" style="margin:0">
+          Submitted Registrations
+          {#if savedRegistrations.length > 0}<span class="reg-count-badge">{savedRegistrations.length}</span>{/if}
+        </h2>
+        <div class="panel-actions">
+          <button type="button" on:click={() => (showRegistrations = !showRegistrations)}>
+            {showRegistrations ? 'Hide' : 'Show'} registrations
+          </button>
+          {#if savedRegistrations.length > 0 && showRegistrations}
+            <button type="button" class="primary" on:click={exportRegistrationsCsv}>Export CSV</button>
+            <button type="button" on:click={clearSavedRegistrations}>Clear all</button>
+          {/if}
+        </div>
+      </div>
+      <p class="hint" style="margin:.35rem 0 0">Registrations saved in this browser. Configure the webhook above to also log them to Google Sheets automatically.</p>
+      {#if showRegistrations}
+        {#if savedRegistrations.length === 0}
+          <p class="hint" style="margin-top:.5rem">No registrations submitted yet.</p>
+        {:else}
+          <div class="table-wrap" style="margin-top:.6rem">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Submitted</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Agency</th>
+                  <th scope="col">Course</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each savedRegistrations as r, i}
+                  <tr>
+                    <td>{i + 1}</td>
+                    <td>{r.submittedAtEastern}</td>
+                    <td>{r.firstName} {r.lastName}</td>
+                    <td><a href="mailto:{r.email}">{r.email}</a></td>
+                    <td>{r.agency}</td>
+                    <td>{r.selectedClass || r.selectedClassId}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+        {/if}
+      {/if}
+    </section>
   </main>
 
 {/if}
@@ -1440,6 +1556,22 @@
   .news-summary { margin: 0; color: #374f6e; font-size: .9rem; line-height: 1.5; flex: 1; }
   .news-link { display: inline-block; margin-top: .6rem; padding: .32rem .7rem; font-size: .84rem; color: #0f5db0; text-decoration: none; font-weight: 600; border: 1px solid #0f5db0; border-radius: 999px; background: #f0f7ff; align-self: flex-start; }
   .news-link:hover { background: #0f5db0; color: #fff; }
+  /* News PIO header row */
+  .news-pio-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: .3rem; }
+  .news-pio-cta { display: inline-block; padding: .45rem 1rem; background: #1c73d3; color: #fff; border: 1px solid #0f5db0; border-radius: 8px; text-decoration: none; font-size: .88rem; font-weight: 600; white-space: nowrap; align-self: center; }
+  .news-pio-cta:hover { background: #0f5db0; }
+  /* News filter + count */
+  .news-controls { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; margin: 1.4rem 0 .5rem; border-bottom: 2px solid #0f5db0; padding-bottom: .4rem; }
+  .news-filter-chips { display: flex; gap: .35rem; flex-wrap: wrap; }
+  .news-chip { border: 1px solid #c5d0df; border-radius: 999px; padding: .28rem .7rem; font-size: .8rem; background: #fff; color: #184778; cursor: pointer; }
+  .news-chip.active { background: #1c73d3; color: #fff; border-color: #0f5db0; font-weight: 600; }
+  .news-count { color: #5a6f8d; font-size: .82rem; margin: 0 0 .6rem; }
+  /* Submitted registrations panel */
+  .reg-webhook-config { margin-top: 2rem; }
+  .reg-webhook-fields { display: grid; grid-template-columns: 2fr 1fr; gap: .65rem; margin: .75rem 0 .4rem; }
+  .reg-submissions { margin-top: 1.5rem; }
+  .reg-submissions-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
+  .reg-count-badge { display: inline-flex; align-items: center; justify-content: center; background: #1c73d3; color: #fff; border-radius: 999px; font-size: .75rem; font-weight: 700; padding: .1rem .5rem; margin-left: .4rem; vertical-align: middle; }
 
   /* KYEM Site rework */
   .kyem-layout { min-height: 60vh; display: flex; flex-direction: column; gap: 1.5rem; }
