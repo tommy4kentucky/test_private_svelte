@@ -103,6 +103,7 @@
   let submissionError = '';
 
   let showRegistrationModal = false;
+  let detailTraining = null;
   let showRegistrations = false;
   let savedRegistrations = [];
 
@@ -255,6 +256,20 @@
     classSearch = '';
     registrationForm = { ...emptyForm, selectedClassId: String(training.id) };
     showRegistrationModal = true;
+  }
+
+  function openDetail(training) {
+    detailTraining = training;
+  }
+
+  function closeDetail() {
+    detailTraining = null;
+  }
+
+  function registerFromDetail() {
+    const t = detailTraining;
+    closeDetail();
+    openRegistration(t);
   }
 
   async function handleRegistrationSubmit() {
@@ -943,7 +958,14 @@
               <td data-label="Tuition">{t.tuition}</td>
               <td data-label="Other costs / notes">{t.other}</td>
               <td data-label="Status"><span class="badge">{t.registration}</span></td>
-              <td data-label="Registration">{#if t.registration === "Open" || t.registration === "Waitlist"}<button type="button" class="register-btn" class:waitlist={t.registration === "Waitlist"} on:click={() => openRegistration(t)}>{t.registration === "Waitlist" ? "Join Waitlist" : "Register"}</button>{:else}<span class="badge badge-closed">Closed</span>{/if}</td>
+              <td data-label="Registration" class="reg-actions">
+                <button type="button" class="detail-btn" on:click={() => openDetail(t)}>View details</button>
+                {#if t.registration === "Open" || t.registration === "Waitlist"}
+                  <button type="button" class="register-btn" class:waitlist={t.registration === "Waitlist"} on:click={() => openRegistration(t)}>{t.registration === "Waitlist" ? "Join Waitlist" : "Register"}</button>
+                {:else}
+                  <span class="badge badge-closed">Closed</span>
+                {/if}
+              </td>
               <td data-label="Calendar">
                 <details class="calendar-nested">
                   <summary class="calendar-summary">Add to calendar</summary>
@@ -962,6 +984,38 @@
   </section>
 
 </main>
+
+{#if detailTraining}
+  <div class="modal-backdrop" role="presentation" on:click={closeDetail}></div>
+  <section class="modal modal-detail" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
+    <button type="button" class="close-modal" aria-label="Close class details" on:click={closeDetail}>×</button>
+    <div class="detail-header">
+      <p class="eyebrow">{detailTraining.region} Region · {detailTraining.mode}</p>
+      <h2 id="detail-modal-title">{detailTraining.title}</h2>
+      <p class="detail-meta">
+        <span>{formatDate(detailTraining.startDate)}{detailTraining.startDate !== detailTraining.endDate ? '–' + formatDate(detailTraining.endDate) : ''}</span>
+        <span>·</span>
+        <span>{detailTraining.location}</span>
+        <span>·</span>
+        <span>Tuition: {detailTraining.tuition}</span>
+      </p>
+      {#if detailTraining.other}<p class="detail-other">{detailTraining.other}</p>{/if}
+    </div>
+    <p class="detail-audience">Intended audience: <strong>{detailTraining.audience}</strong></p>
+    {#if detailTraining.description}<p class="detail-desc">{detailTraining.description}</p>{/if}
+    {#if detailTraining.pdfUrl}
+      <p class="detail-pdf"><a href={detailTraining.pdfUrl} target="_blank" rel="noopener noreferrer" class="pdf-link">📄 Official course announcement (PDF)</a></p>
+    {/if}
+    <div class="modal-actions">
+      <button type="button" on:click={closeDetail}>Close</button>
+      {#if detailTraining.registration === "Open" || detailTraining.registration === "Waitlist"}
+        <button type="button" class="primary" on:click={registerFromDetail}>
+          {detailTraining.registration === "Waitlist" ? "Join Waitlist" : "Register for this class"}
+        </button>
+      {/if}
+    </div>
+  </section>
+{/if}
 
 {#if showRegistrationModal}
   <div class="modal-backdrop" role="presentation" on:click={() => (showRegistrationModal = false)}></div>
@@ -1025,6 +1079,14 @@
       </label>
 
       <label class="full">Search classes<input bind:value={classSearch} placeholder="Type course, county, or date" /></label>
+      {#if registrationForm.selectedClassId}
+        {#each trainings.filter(t => String(t.id) === registrationForm.selectedClassId) as selClass}
+          <p class="full selected-class-info">
+            Selected: <strong>{selClass.title} — {selClass.location}, {formatDate(selClass.startDate)}–{formatDate(selClass.endDate)}</strong>
+            <button type="button" class="text-link" on:click|preventDefault={() => { detailTraining = selClass; }}>View full class details &rarr;</button>
+          </p>
+        {/each}
+      {/if}
       <label class="full">Choose class *
         <select bind:value={registrationForm.selectedClassId} required>
           <option value="">-- Select class from search results --</option>
@@ -1489,9 +1551,23 @@
   thead th { background: #f3f7fc; }
   .meta { color: #5d6e87; margin-top: .25rem; }
   .badge { background: #e7f1ff; color: #184778; padding: .2rem .5rem; border-radius: 999px; font-weight: 600; }
+  .reg-actions { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+  .detail-btn { border: 1px solid #0f5db0; background: transparent; color: #0f5db0; border-radius: 999px; padding: .3rem .65rem; font-size: .8rem; cursor: pointer; }
+  .detail-btn:hover { background: #e8f0fc; }
   .register-btn { border: 1px solid #0f5db0; background: #1c73d3; color: #fff; border-radius: 999px; padding: .35rem .7rem; }
   .register-btn.waitlist { background: #7c5c00; border-color: #7c5c00; }
   .badge-closed { background: #d1d5db; color: #6b7280; border-radius: 999px; padding: .2rem .55rem; font-size: .8rem; }
+  .modal-detail { max-width: 42rem; }
+  .detail-header { margin-bottom: 1rem; }
+  .detail-meta { display: flex; gap: .5rem; flex-wrap: wrap; color: #444; font-size: .9rem; margin: .3rem 0; }
+  .detail-other { color: #555; font-size: .9rem; margin: .25rem 0 0; }
+  .detail-audience { margin: .5rem 0; font-size: .92rem; }
+  .detail-desc { line-height: 1.65; color: #333; margin: .75rem 0; }
+  .detail-pdf { margin: .75rem 0; }
+  .pdf-link { font-weight: 600; color: #0f5db0; text-decoration: none; }
+  .pdf-link:hover { text-decoration: underline; }
+  .selected-class-info { margin: .3rem 0 .6rem; font-size: .88rem; color: #333; display: flex; gap: .75rem; align-items: baseline; flex-wrap: wrap; }
+  .text-link { background: none; border: none; color: #0f5db0; cursor: pointer; font-size: .88rem; text-decoration: underline; padding: 0; }
   .calendar-summary { list-style: none; border: 1px solid #8fb0d8; background: #f3f8ff; color: #113b68; border-radius: 999px; padding: .35rem .7rem; font-weight: 600; cursor: pointer; }
   .calendar-summary::-webkit-details-marker { display: none; }
   .calendar-menu { margin-top: .4rem; display: flex; flex-direction: column; gap: .35rem; min-width: 180px; }
